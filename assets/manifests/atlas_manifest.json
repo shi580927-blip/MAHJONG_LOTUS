@@ -1,0 +1,150 @@
+{
+  "version": 1,
+  "maxAtlasSize": 2048,
+  "packing": {
+    "padding": 4,
+    "extrude": 2,
+    "allowRotation": false
+  },
+  "groups": {
+    "tiles_common": {
+      "load": "gameplay",
+      "contains": [
+        "tile_symbol_01_bamboo..tile_symbol_24_crescent_moon",
+        "tile_shadow",
+        "tile_overlay_selected",
+        "tile_overlay_hint",
+        "tile_overlay_blocked"
+      ]
+    },
+    "tiles_ch1": {
+      "load": "chapter_1",
+      "contains": [
+        "tile_base_ch1_serenity"
+      ]
+    },
+    "tiles_ch2": {
+      "load": "chapter_2",
+      "contains": [
+        "tile_base_ch2_sakura"
+      ]
+    },
+    "tiles_ch3": {
+      "load": "chapter_3",
+      "contains": [
+        "tile_base_ch3_temple"
+      ]
+    },
+    "ui_common": {
+      "load": "persistent_after_menu",
+      "contains": [
+        "currency_panels",
+        "currency_icons",
+        "buttons",
+        "settings",
+        "toggles",
+        "9slice_frames"
+      ]
+    },
+    "ui_game": {
+      "load": "gameplay",
+      "contains": [
+        "boosters",
+        "booster_slot",
+        "booster_badge"
+      ]
+    },
+    "ui_menu": {
+      "load": "menu",
+      "contains": [
+        "menu_small_decor"
+      ]
+    },
+    "ui_result": {
+      "load": "gameplay",
+      "contains": [
+        "result_emblems",
+        "reward_icons",
+        "no_moves_emblems"
+      ]
+    },
+    "map_common": {
+      "load": "map",
+      "contains": [
+        "level_nodes",
+        "path_segments",
+        "map_controls"
+      ]
+    },
+    "map_ch1": {
+      "load": "chapter_1_map",
+      "contains": [
+        "ch1_modular_objects"
+      ]
+    },
+    "map_ch2": {
+      "load": "chapter_2_map",
+      "contains": [
+        "ch2_modular_objects"
+      ]
+    },
+    "map_ch3": {
+      "load": "chapter_3_map",
+      "contains": [
+        "ch3_modular_objects"
+      ]
+    },
+    "decor_common": {
+      "load": "map_and_gameplay",
+      "contains": [
+        "petals",
+        "leaves",
+        "small_glints",
+        "sparkle_source"
+      ]
+    },
+    "decor_ch1": {
+      "load": "chapter_1",
+      "contains": [
+        "ch1_small_ambient"
+      ]
+    },
+    "decor_ch2": {
+      "load": "chapter_2",
+      "contains": [
+        "ch2_small_ambient"
+      ]
+    },
+    "decor_ch3": {
+      "load": "chapter_3",
+      "contains": [
+        "ch3_small_ambient"
+      ]
+    },
+    "fx_common": {
+      "load": "later",
+      "status": "NOT_STARTED"
+    },
+    "fx_ch1": {
+      "load": "later",
+      "status": "NOT_STARTED"
+    },
+    "fx_ch2": {
+      "load": "later",
+      "status": "NOT_STARTED"
+    },
+    "fx_ch3": {
+      "load": "later",
+      "status": "NOT_STARTED"
+    }
+  },
+  "separate": [
+    "chapter backgrounds",
+    "full-screen foreground layers",
+    "localized logos",
+    "inefficient oversized landmarks",
+    "audio",
+    "level JSON",
+    "localization files"
+  ]
+}
