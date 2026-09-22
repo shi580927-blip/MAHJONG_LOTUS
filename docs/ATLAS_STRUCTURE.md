@@ -293,3 +293,26 @@ Atlas считается готовым, если:
 - можно загрузить/выгрузить chapter pack независимо;
 - нет большой картинки, которая должна быть separate;
 - проверен memory/load на mobile после Этапа 7.
+
+
+---
+
+## 13. CURRENT PROTOTYPE INTEGRATION
+
+**Статус:** TEST / на проверку.
+
+Для первой визуальной интеграции карты в Phaser в репозиторий добавлен runtime proxy:
+- `assets/runtime/atlases/map_common/map_common.webp`;
+- `assets/runtime/atlases/map_common/map_common.json`.
+
+WebP здесь используется только как лёгкий **TEST runtime proxy**, чтобы немедленно проверить карту на GitHub Pages. Утверждённый production-стандарт не меняется: финальный `map_common` перед production freeze экспортируется как **PNG + JSON**, с alpha, padding 4 px, extrusion 2 px, rotation OFF.
+
+Для Chapter 1 временно подключён:
+- `assets/runtime/backgrounds/ch1/ch1_bg_master.webp` — 1920×1080, TEST.
+
+Это не заменяет утверждённую трёхслойную структуру Batch D:
+- `ch1_bg_far.webp`;
+- `ch1_bg_water.webp`;
+- `ch1_fg_soft.png`.
+
+Цель текущей версии — проверить композицию, прокрутку, размеры нод и адаптацию 16:9 / 9:16 до дальнейшего производства графики.
