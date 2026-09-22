@@ -30,11 +30,11 @@ TILE-SYM-21,tile_symbol_21_mountain.png,tile_symbol,common,144x144,yes,atlas,til
 TILE-SYM-22,tile_symbol_22_sun_disc.png,tile_symbol,common,144x144,yes,atlas,tiles_common,P0,APPROVED
 TILE-SYM-23,tile_symbol_23_crane.png,tile_symbol,common,144x144,yes,atlas,tiles_common,P0,APPROVED
 TILE-SYM-24,tile_symbol_24_crescent_moon.png,tile_symbol,common,144x144,yes,atlas,tiles_common,P0,APPROVED
-BST-01,booster_hint.png,booster,common,160x160,yes,atlas,ui_game,P0,PLANNED
-BST-02,booster_shuffle.png,booster,common,160x160,yes,atlas,ui_game,P0,PLANNED
-BST-03,booster_lotus_blessing.png,booster,common,160x160,yes,atlas,ui_game,P0,PLANNED
-UI-003,ui_icon_coin.png,ui,common,96x96,yes,atlas,ui_common,P0,PLANNED
-UI-004,ui_icon_petal.png,ui,common,96x96,yes,atlas,ui_common,P0,PLANNED
+BST-01,booster_hint.png,booster,common,160x160,yes,atlas,ui_game,P0,APPROVED
+BST-02,booster_shuffle.png,booster,common,160x160,yes,atlas,ui_game,P0,APPROVED
+BST-03,booster_lotus_blessing.png,booster,common,160x160,yes,atlas,ui_game,P0,APPROVED
+UI-003,ui_icon_coin.png,ui,common,96x96,yes,atlas,ui_common,P0,APPROVED
+UI-004,ui_icon_petal.png,ui,common,96x96,yes,atlas,ui_common,P0,APPROVED
 MAP-COM-01,map_node_locked.png,map_node,common,160x160,yes,atlas,map_common,P0,PLANNED
 MAP-COM-02,map_node_available.png,map_node,common,160x160,yes,atlas,map_common,P0,PLANNED
 MAP-COM-03,map_node_completed.png,map_node,common,160x160,yes,atlas,map_common,P0,PLANNED
