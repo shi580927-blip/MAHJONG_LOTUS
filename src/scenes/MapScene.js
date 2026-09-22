@@ -21,12 +21,14 @@ export class MapScene extends Phaser.Scene {
   preload() {
     this.load.atlas(
       ATLAS_KEY,
-      'assets/runtime/atlases/map_common/map_common.png',
-      'assets/runtime/atlases/map_common/map_common.json'
+      'assets/runtime/atlases/map_common/map_common.webp?v=20260922-1',
+      'assets/runtime/atlases/map_common/map_common.json?v=20260922-1'
     );
 
-    // Clean Chapter 1 background will be plugged here as soon as final art is exported.
-    // this.load.image('ch1_bg', 'assets/runtime/backgrounds/ch1/ch1_bg_master.webp');
+    this.load.image(
+      'ch1_bg_master',
+      'assets/runtime/backgrounds/ch1/ch1_bg_master.webp?v=20260922-1'
+    );
   }
 
   create() {
@@ -36,9 +38,15 @@ export class MapScene extends Phaser.Scene {
       this.createFallbackMapTextures();
     }
 
-    this.createFallbackBackground();
-    this.createHud();
     this.buildPath();
+
+    if (this.textures.exists('ch1_bg_master')) {
+      this.createWorldBackground();
+    } else {
+      this.createFallbackBackground();
+    }
+
+    this.createHud();
     this.enableMapScroll();
 
     this.scale.on('resize', () => this.scene.restart());
@@ -80,6 +88,41 @@ export class MapScene extends Phaser.Scene {
     d.strokeCircle(24, 24, 11);
     d.generateTexture('fallback_path_dot', 48, 48);
     d.destroy();
+  }
+
+  createWorldBackground() {
+    const { width, height } = this.scale;
+    const portrait = height > width;
+    const srcW = 1920;
+    const srcH = 1080;
+
+    // TEST background pass: one approved-style Chapter 1 master is repeated/mirrored
+    // to cover the whole scrollable path. Final Batch D will replace this with
+    // ch1_bg_far / ch1_bg_water / ch1_fg_soft without changing the map logic.
+    const scale = Math.max(width / srcW, height / srcH) * 1.06;
+    const chunkW = srcW * scale;
+    const chunkH = srcH * scale;
+    const span = portrait ? Math.max(height * 0.92, chunkH * 0.72) : Math.max(width * 0.92, chunkW * 0.72);
+    const count = Math.ceil(this.worldExtent / span) + 1;
+
+    for (let i = 0; i < count; i++) {
+      const x = portrait ? width / 2 : i * span + span / 2;
+      const y = portrait ? i * span + span / 2 : height / 2;
+
+      this.add.image(x, y, 'ch1_bg_master')
+        .setOrigin(0.5)
+        .setScale(scale)
+        .setFlipX(i % 2 === 1)
+        .setDepth(-100);
+    }
+
+    const veil = this.add.graphics().setDepth(-90);
+    veil.fillStyle(0x062f29, 0.12);
+    if (portrait) {
+      veil.fillRect(0, 0, width, this.worldExtent);
+    } else {
+      veil.fillRect(0, 0, this.worldExtent, height);
+    }
   }
 
   createFallbackBackground() {
