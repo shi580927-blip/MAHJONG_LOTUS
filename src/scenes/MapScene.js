@@ -31,12 +31,55 @@ export class MapScene extends Phaser.Scene {
 
   create() {
     this.cameras.main.setBackgroundColor('#0d3b32');
+
+    if (!this.textures.exists(ATLAS_KEY)) {
+      this.createFallbackMapTextures();
+    }
+
     this.createFallbackBackground();
     this.createHud();
     this.buildPath();
     this.enableMapScroll();
 
     this.scale.on('resize', () => this.scene.restart());
+  }
+
+  createFallbackMapTextures() {
+    const specs = {
+      completed: 0xf7efd8,
+      current: 0xff79a9,
+      available: 0xf8f0dc,
+      locked: 0x777777,
+      milestone: 0xff8eb7,
+      chapter_end: 0xffa3c3,
+    };
+
+    Object.entries(specs).forEach(([state, fill]) => {
+      const size = state === 'chapter_end' ? 192 : state === 'milestone' ? 176 : 160;
+      const g = this.make.graphics({ x: 0, y: 0, add: false });
+      g.fillStyle(0x064d42, 1);
+      g.fillCircle(size / 2, size * 0.58, size * 0.34);
+      g.lineStyle(Math.max(4, size * 0.035), 0xe8b94f, 1);
+      g.strokeCircle(size / 2, size * 0.58, size * 0.34);
+      g.fillStyle(fill, 1);
+      g.fillCircle(size / 2, size * 0.43, size * 0.23);
+
+      if (state === 'locked') {
+        g.fillStyle(0xe8b94f, 1);
+        g.fillRoundedRect(size * 0.38, size * 0.38, size * 0.24, size * 0.22, 8);
+      }
+
+      g.generateTexture(`fallback_${state}`, size, size);
+      g.destroy();
+    });
+
+    const d = this.make.graphics({ x: 0, y: 0, add: false });
+    d.fillStyle(0xf5c451, 1);
+    d.fillCircle(24, 24, 11);
+    d.lineStyle(3, 0xffefb0, 1);
+    d.strokeCircle(24, 24, 11);
+    d.generateTexture('fallback_path_dot', 48, 48);
+    d.destroy();
   }
 
   createFallbackBackground() {
@@ -104,7 +147,12 @@ export class MapScene extends Phaser.Scene {
       if ([5, 10, 15].includes(level) && level < this.currentLevel) state = 'milestone';
       if (level === 20) state = this.currentLevel >= 20 ? 'chapter_end' : 'locked';
 
-      const node = this.add.image(p.x, p.y, ATLAS_KEY, FRAME_BY_STATE[state])
+      const hasAtlas = this.textures.exists(ATLAS_KEY);
+      const node = hasAtlas
+        ? this.add.image(p.x, p.y, ATLAS_KEY, FRAME_BY_STATE[state])
+        : this.add.image(p.x, p.y, `fallback_${state}`);
+
+      node
         .setDepth(20)
         .setInteractive({ useHandCursor: state !== 'locked' });
 
@@ -150,12 +198,20 @@ export class MapScene extends Phaser.Scene {
 
       for (let n = 1; n < count; n++) {
         const t = n / count;
-        this.add.image(
-          Phaser.Math.Linear(a.x, b.x, t),
-          Phaser.Math.Linear(a.y, b.y, t),
-          ATLAS_KEY,
-          'map_path_dot'
-        )
+        const dot = this.textures.exists(ATLAS_KEY)
+          ? this.add.image(
+              Phaser.Math.Linear(a.x, b.x, t),
+              Phaser.Math.Linear(a.y, b.y, t),
+              ATLAS_KEY,
+              'map_path_dot'
+            )
+          : this.add.image(
+              Phaser.Math.Linear(a.x, b.x, t),
+              Phaser.Math.Linear(a.y, b.y, t),
+              'fallback_path_dot'
+            );
+
+        dot
           .setScale(0.34)
           .setAlpha(i + 1 < this.currentLevel ? 0.95 : 0.48)
           .setDepth(5);
