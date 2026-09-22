@@ -764,3 +764,15 @@ IAP, полноценный магазин, daily systems, коллекции, s
 - Runtime JSON для map_common добавлен в assets/runtime/atlases/map_common/.
 - До физической загрузки texture atlas MapScene имеет временный программный fallback, чтобы код можно было развивать без остановки.
 - Следующий художественный приоритет: только фоновые слои Chapter 1 — ch1_bg_far, ch1_bg_water, ch1_fg_soft. Новые россыпи UI/map props до проверки рабочей сцены не производятся.
+
+
+### v0.14
+- Реальный Batch C atlas подключён к Phaser-карте: `assets/runtime/atlases/map_common/map_common.webp` + `map_common.json`.
+- В GitHub добавлен тестовый master-фон Chapter 1: `assets/runtime/backgrounds/ch1/ch1_bg_master.webp`, 1920×1080.
+- Статус фонового master: **TEST / на проверку**, не финальный Batch D.
+- `MapScene` теперь загружает реальные ноды/дорожку и фон вместо ожидания отсутствующих бинарных ассетов.
+- Фон размножается/зеркалится программно для покрытия scrollable Path в 16:9 и 9:16; это временный технический способ проверки композиции, а не финальная структура окружения.
+- Финальная структура Chapter 1 остаётся прежней: `ch1_bg_far.webp` + `ch1_bg_water.webp` + `ch1_fg_soft.png`.
+- Cache/version query обновлён до `v=20260922-1`.
+- GitHub Pages build/deploy для версии карты с реальным atlas/background завершился успешно.
+- До визуальной проверки рабочей карты производство новых UI/map props остановлено.
