@@ -217,12 +217,14 @@ Runtime: ориентир 144–176 px.
 | MAP-COM-03 | map_node_completed.png | Пройденный | map_common |
 | MAP-COM-04 | map_node_milestone.png | 5/10/15/20 | map_common |
 | MAP-COM-05 | map_node_chapter_end.png | Финальный узел главы | map_common |
-| MAP-COM-06 | map_path_dot.png | Малый элемент дорожки | map_common |
-| MAP-COM-07 | map_path_segment_straight.png | Прямой сегмент | map_common |
-| MAP-COM-08 | map_path_segment_curve_l.png | Изгиб L | map_common |
-| MAP-COM-09 | map_path_segment_curve_r.png | Изгиб R | map_common |
+| MAP-COM-06 | map_path_dot.png | Малый элемент золотой дорожки | map_common |
+| MAP-COM-07 | map_path_segment_straight.png | Прямой золотой сегмент | map_common |
+| MAP-COM-08 | map_path_segment_curve_l.png | Плавный изгиб L | map_common |
+| MAP-COM-09 | map_path_segment_curve_r.png | Плавный изгиб R | map_common |
 
-Номер уровня — кодом.
+Номер уровня — кодом. На игровом HUD используется подпись «Уровень» + крупный номер; в map-node PNG цифры не вшиваются.
+
+Утверждённое визуальное направление: ivory/розовые лотосы, нефритовые основания, золото; locked — серо-каменный; current/milestone визуально сильнее обычных нод. Дорожка — тонкая золотая модульная линия/точки, а не широкая каменная дорога. Один common-набор используется в 16:9 и 9:16. Y-разветвление для линейного Пути не требуется.
 
 ---
 
@@ -489,3 +491,29 @@ Milestones:
 - boosters: Hint / Shuffle / Lotus Blessing.
 
 Следующий production batch: **Batch C — Карта Пути**.
+
+
+# 19. BATCH C — СТАТУС
+
+**APPROVED по визуальному направлению.**
+
+Утверждены:
+- map_node_completed.png;
+- map_node_current.png;
+- map_node_available.png;
+- map_node_locked.png;
+- map_node_milestone.png;
+- map_node_chapter_end.png;
+- map_path_dot.png;
+- map_path_segment_straight.png;
+- map_path_segment_curve_l.png;
+- map_path_segment_curve_r.png.
+
+Правила:
+- номера уровней — кодом;
+- current glow / pulse и прочие сияния — отдельный FX-проход;
+- landmark главы не встраивается в chapter-end node;
+- один map_common набор используется для landscape 16:9 и portrait 9:16;
+- длинная сторона целевого экрана — не более 1920 px.
+
+Следующий production batch: **Batch D — Chapter 1 / Сад Безмятежности** после экспорта и упаковки map_common.
