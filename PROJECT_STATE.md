@@ -753,3 +753,14 @@ IAP, полноценный магазин, daily systems, коллекции, s
 - Y-разветвление исключено как ненужное для линейного Пути.
 - Batch C закрыт по визуальному направлению.
 - Следующий production batch после экспорта map_common: Batch D — Chapter 1 / Сад Безмятежности.
+
+
+### v0.13
+- Производство лишних map-common элементов остановлено: Batch C считается достаточным и закрытым по составу.
+- Начата реальная интеграция Phaser 3.
+- В репозиторий добавлены index.html, styles.css, src/main.js, src/data/mapChapter1.js и src/scenes/MapScene.js.
+- MapScene уже содержит 20 уровней главы 1, milestone 5/10/15/20, состояния нод, программные номера уровней, drag/wheel scroll и отдельную геометрию для landscape/portrait.
+- HUD показывает «Уровень N».
+- Runtime JSON для map_common добавлен в assets/runtime/atlases/map_common/.
+- До физической загрузки texture atlas MapScene имеет временный программный fallback, чтобы код можно было развивать без остановки.
+- Следующий художественный приоритет: только фоновые слои Chapter 1 — ch1_bg_far, ch1_bg_water, ch1_fg_soft. Новые россыпи UI/map props до проверки рабочей сцены не производятся.
