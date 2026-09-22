@@ -1,0 +1,12 @@
+html, body, #game-root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #071f1b;
+}
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  touch-action: none;
+}
+canvas { display:block; margin:0 auto; }
