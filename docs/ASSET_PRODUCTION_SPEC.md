@@ -473,3 +473,19 @@ Milestones:
 - 24 symbols: 8 classic-inspired + 16 тематических.
 
 Следующий production batch: **Batch B — Core UI**.
+
+
+# 18. BATCH B — СТАТУС
+
+**APPROVED по визуальному направлению.**
+
+Утверждены:
+- HUD монет;
+- HUD лепестков;
+- панель уровня: только крупное число;
+- pause/back/close/settings controls;
+- music/sound/language/toggles;
+- универсальные popup frames;
+- boosters: Hint / Shuffle / Lotus Blessing.
+
+Следующий production batch: **Batch C — Карта Пути**.
