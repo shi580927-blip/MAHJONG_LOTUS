@@ -1,0 +1,15 @@
+{
+  "frames": {
+    "map_node_locked": {"frame":{"x":6,"y":6,"w":160,"h":160},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":160,"h":160},"sourceSize":{"w":160,"h":160}},
+    "map_node_available": {"frame":{"x":174,"y":6,"w":160,"h":160},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":160,"h":160},"sourceSize":{"w":160,"h":160}},
+    "map_node_completed": {"frame":{"x":342,"y":6,"w":160,"h":160},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":160,"h":160},"sourceSize":{"w":160,"h":160}},
+    "map_node_current": {"frame":{"x":510,"y":6,"w":160,"h":160},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":160,"h":160},"sourceSize":{"w":160,"h":160}},
+    "map_node_milestone": {"frame":{"x":678,"y":6,"w":176,"h":176},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":176,"h":176},"sourceSize":{"w":176,"h":176}},
+    "map_node_chapter_end": {"frame":{"x":6,"y":190,"w":192,"h":192},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":192,"h":192},"sourceSize":{"w":192,"h":192}},
+    "map_path_dot": {"frame":{"x":206,"y":190,"w":48,"h":48},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":48,"h":48},"sourceSize":{"w":48,"h":48}},
+    "map_path_segment_straight": {"frame":{"x":262,"y":190,"w":192,"h":48},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":192,"h":48},"sourceSize":{"w":192,"h":48}},
+    "map_path_segment_curve_l": {"frame":{"x":462,"y":190,"w":192,"h":96},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":192,"h":96},"sourceSize":{"w":192,"h":96}},
+    "map_path_segment_curve_r": {"frame":{"x":662,"y":190,"w":192,"h":96},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":192,"h":96},"sourceSize":{"w":192,"h":96}}
+  },
+  "meta": {"app":"OpenAI asset packer","version":"1.0","image":"map_common.png","format":"RGBA8888","size":{"w":1024,"h":512},"scale":"1"}
+}
