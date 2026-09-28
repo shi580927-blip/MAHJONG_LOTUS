@@ -535,3 +535,42 @@ Milestones:
 - `ch1_fg_soft.png`.
 
 До визуальной проверки рабочей MapScene новые наборы декоративных map/UI ассетов не производятся. После проверки текущий master либо принимается как основа для разделения на три слоя, либо корректируется один раз целиком.
+
+
+## 20.1. Production background folders
+
+По последнему утверждённому направлению фоны Chapter 1 разделяются по назначению и ориентации.
+
+### Source / candidates
+```text
+assets/source/chapters/ch1/backgrounds/
+  map/
+    landscape/
+    portrait/
+  gameplay/
+    landscape/
+    portrait/
+```
+
+Сюда помещаются исходные PNG/WebP, варианты генерации и выбранные master-файлы до runtime-оптимизации.
+
+### Runtime
+```text
+assets/runtime/backgrounds/ch1/
+  map/
+    ch1_map_bg_16x9.webp
+    ch1_map_bg_9x16.webp
+  gameplay/
+    ch1_level_bg_16x9.webp
+    ch1_level_bg_9x16.webp
+```
+
+Требования:
+- 16:9 — 1920×1080;
+- 9:16 — 1080×1920;
+- карта: разрешены каменные дорожки, мостики, лестницы и террасы окружения, но без программных нод/золотой дорожки/UI;
+- gameplay: центр спокойнее и чище под раскладку Mahjong;
+- текст, логотипы, кнопки и игровая графика в фон не вшиваются;
+- существующий `ch1_bg_master.webp` остаётся TEST и не считается финальным фоном.
+
+Если после визуальной проверки потребуется parallax/ambient-разделение, производные слои `far/water/foreground` создаются из утверждённого master, а не вместо master-фонов.

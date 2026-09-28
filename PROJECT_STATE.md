@@ -776,3 +776,12 @@ IAP, полноценный магазин, daily systems, коллекции, s
 - Cache/version query обновлён до `v=20260922-1`.
 - GitHub Pages build/deploy для версии карты с реальным atlas/background завершился успешно.
 - До визуальной проверки рабочей карты производство новых UI/map props остановлено.
+
+
+### v0.15
+- Создана production-структура папок для фоновых файлов всех трёх глав.
+- Source и runtime разделены: кандидаты/masters не смешиваются с файлами, загружаемыми Phaser.
+- Для каждой главы заведены отдельные папки map/gameplay и landscape/portrait.
+- Для Chapter 1 зафиксированы runtime-имена: ch1_map_bg_16x9.webp, ch1_map_bg_9x16.webp, ch1_level_bg_16x9.webp, ch1_level_bg_9x16.webp.
+- Текущий ch1_bg_master.webp сохраняет статус TEST и будет заменён после выбора финальных фонов.
+- ASSET_PRODUCTION_SPEC.md, ATLAS_STRUCTURE.md и assets/README.md синхронизированы с новой структурой.

@@ -316,3 +316,33 @@ WebP здесь используется только как лёгкий **TEST
 - `ch1_fg_soft.png`.
 
 Цель текущей версии — проверить композицию, прокрутку, размеры нод и адаптацию 16:9 / 9:16 до дальнейшего производства графики.
+
+
+---
+
+## 14. BACKGROUND SOURCE/RUNTIME LAYOUT
+
+Backgrounds не входят в texture atlas.
+
+Структура для каждой главы:
+```text
+assets/source/chapters/chN/backgrounds/
+  map/
+    landscape/
+    portrait/
+  gameplay/
+    landscape/
+    portrait/
+
+assets/runtime/backgrounds/chN/
+  map/
+  gameplay/
+```
+
+Для Chapter 1 runtime:
+- `map/ch1_map_bg_16x9.webp`
+- `map/ch1_map_bg_9x16.webp`
+- `gameplay/ch1_level_bg_16x9.webp`
+- `gameplay/ch1_level_bg_9x16.webp`
+
+Source может содержать несколько кандидатов. Runtime содержит только выбранный и оптимизированный вариант, реально используемый Phaser. Это позволяет не путать концепты с production-файлами и не раздувать загрузку игры.
