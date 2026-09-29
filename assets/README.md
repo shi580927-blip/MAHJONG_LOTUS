@@ -78,3 +78,20 @@ Chapter 1 target runtime filenames:
 - `backgrounds/ch1/gameplay/ch1_level_bg_9x16.webp`
 
 The current root-level `ch1_bg_master.webp` remains TEST only until replaced by selected production backgrounds.
+
+
+### Chapter 1 — files already placed
+
+Source masters:
+- `source/chapters/ch1/backgrounds/map/landscape/ch1_map_master_16x9.webp`
+- `source/chapters/ch1/backgrounds/map/portrait/ch1_map_master_9x16.webp`
+- `source/chapters/ch1/backgrounds/gameplay/landscape/ch1_level_master_16x9.webp`
+- `source/chapters/ch1/backgrounds/gameplay/portrait/ch1_level_master_9x16.webp`
+
+Runtime:
+- `runtime/backgrounds/ch1/map/ch1_map_bg_16x9.webp`
+- `runtime/backgrounds/ch1/map/ch1_map_bg_9x16.webp`
+- `runtime/backgrounds/ch1/gameplay/ch1_level_bg_16x9.webp`
+- `runtime/backgrounds/ch1/gameplay/ch1_level_bg_9x16.webp`
+
+All four runtime backgrounds are exact target dimensions and WebP.
