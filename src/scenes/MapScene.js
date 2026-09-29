@@ -142,37 +142,73 @@ export class MapScene extends Phaser.Scene {
   }
 
   createHud() {
-    const { width } = this.scale;
-    const portrait = this.scale.height > width;
-    const pad = portrait ? 18 : 26;
+    const { width, height } = this.scale;
+    const portrait = height > width;
+    const edge = Phaser.Math.Clamp(width * 0.045, 14, 32);
 
-    const title = this.add.text(pad, pad, `Уровень ${this.currentLevel}`, {
+    if (portrait) {
+      const titleSize = Phaser.Math.Clamp(width * 0.072, 24, 32);
+      const chapterSize = Phaser.Math.Clamp(width * 0.043, 15, 19);
+
+      const title = this.add.text(edge, edge, `Уровень ${this.currentLevel}`, {
+        fontFamily: 'Georgia, serif',
+        fontSize: `${titleSize}px`,
+        fontStyle: 'bold',
+        color: '#fff3cc',
+        stroke: '#123b31',
+        strokeThickness: 6,
+      }).setScrollFactor(0).setDepth(1000);
+
+      const chapter = this.add.text(width / 2, edge + titleSize + 16, `Глава I · ${CHAPTER_1.title}`, {
+        fontFamily: 'Georgia, serif',
+        fontSize: `${chapterSize}px`,
+        color: '#f4dfaa',
+        stroke: '#123b31',
+        strokeThickness: 5,
+        align: 'center',
+        wordWrap: { width: width - edge * 2, useAdvancedWrap: true },
+      }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(1000);
+
+      return { title, chapter };
+    }
+
+    const title = this.add.text(edge, edge, `Уровень ${this.currentLevel}`, {
       fontFamily: 'Georgia, serif',
-      fontSize: portrait ? '30px' : '34px',
+      fontSize: '34px',
       fontStyle: 'bold',
       color: '#fff3cc',
       stroke: '#123b31',
       strokeThickness: 6,
     }).setScrollFactor(0).setDepth(1000);
 
-    const chapter = this.add.text(width - pad, pad + 4, `Глава I · ${CHAPTER_1.title}`, {
+    const chapter = this.add.text(width - edge, edge + 4, `Глава I · ${CHAPTER_1.title}`, {
       fontFamily: 'Georgia, serif',
-      fontSize: portrait ? '18px' : '22px',
+      fontSize: '22px',
       color: '#f4dfaa',
       stroke: '#123b31',
       strokeThickness: 5,
     }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
 
-    if (portrait && chapter.width > width * 0.56) chapter.setFontSize(16);
+    // On unusually narrow landscape screens, keep both HUD labels inside the viewport.
+    const maxChapterWidth = Math.max(180, width - title.width - edge * 3);
+    if (chapter.width > maxChapterWidth) {
+      chapter.setFontSize(18);
+      chapter.setWordWrapWidth(maxChapterWidth, true);
+    }
+
     return { title, chapter };
   }
 
   buildPath() {
     const { width, height } = this.scale;
     const portrait = height > width;
+    const nodeScale = portrait
+      ? Phaser.Math.Clamp(width / 520, 0.54, 0.72)
+      : Phaser.Math.Clamp(height / 690, 0.62, 0.78);
+
     const positions = portrait
-      ? this.makePortraitPositions(width)
-      : this.makeLandscapePositions(height);
+      ? this.makePortraitPositions(width, nodeScale)
+      : this.makeLandscapePositions(height, nodeScale);
 
     this.worldExtent = portrait
       ? positions[positions.length - 1].y + 260
@@ -201,12 +237,14 @@ export class MapScene extends Phaser.Scene {
         .setDepth(20)
         .setInteractive({ useHandCursor: state !== 'locked' });
 
-      const scale = portrait ? 0.72 : 0.78;
-      node.setScale(level % 5 === 0 ? scale * 1.08 : scale);
+      node.setScale(level % 5 === 0 ? nodeScale * 1.08 : nodeScale);
 
-      this.add.text(p.x, p.y + (portrait ? 49 : 54), String(level), {
+      const labelOffset = (portrait ? 68 : 70) * nodeScale;
+      this.add.text(p.x, p.y + labelOffset, String(level), {
         fontFamily: 'Georgia, serif',
-        fontSize: portrait ? '22px' : '24px',
+        fontSize: portrait
+          ? `${Phaser.Math.Clamp(width * 0.052, 18, 22)}px`
+          : `${Phaser.Math.Clamp(height * 0.033, 20, 24)}px`,
         fontStyle: 'bold',
         color: '#fff6d5',
         stroke: '#0a4036',
@@ -264,27 +302,37 @@ export class MapScene extends Phaser.Scene {
     }
   }
 
-  makePortraitPositions(width) {
-    const margin = Math.max(100, width * 0.19);
-    const usable = width - margin * 2;
-    const stepY = 150;
-    const startY = 180;
+  makePortraitPositions(width, nodeScale) {
+    const nodeHalf = 96 * nodeScale;
+    const edge = Math.max(nodeHalf + 18, width * 0.12);
+    const usable = Math.max(1, width - edge * 2);
+    const stepY = Phaser.Math.Clamp(this.scale.height * 0.12, 132, 168);
+    const startY = Math.max(190, this.scale.height * 0.12);
 
     return Array.from({ length: 20 }, (_, i) => ({
-      x: margin + usable * (0.5 + Math.sin(i * 0.86) * 0.43),
+      x: Phaser.Math.Clamp(
+        edge + usable * (0.5 + Math.sin(i * 0.86) * 0.43),
+        edge,
+        width - edge
+      ),
       y: startY + i * stepY,
     }));
   }
 
-  makeLandscapePositions(height) {
-    const stepX = 175;
-    const startX = 160;
-    const centerY = height * 0.56;
-    const amplitude = Math.min(190, height * 0.2);
+  makeLandscapePositions(height, nodeScale) {
+    const nodeHalf = 96 * nodeScale;
+    const topSafe = Math.max(nodeHalf + 24, height * 0.18);
+    const bottomSafe = Math.max(nodeHalf + 24, height * 0.12);
+    const minY = topSafe;
+    const maxY = Math.max(minY, height - bottomSafe);
+    const centerY = (minY + maxY) / 2;
+    const amplitude = Math.max(0, Math.min(190, (maxY - minY) * 0.43));
+    const stepX = Phaser.Math.Clamp(this.scale.width * 0.095, 155, 185);
+    const startX = Math.max(nodeHalf + 34, 140);
 
     return Array.from({ length: 20 }, (_, i) => ({
       x: startX + i * stepX,
-      y: centerY + Math.sin(i * 0.92) * amplitude,
+      y: Phaser.Math.Clamp(centerY + Math.sin(i * 0.92) * amplitude, minY, maxY),
     }));
   }
 
