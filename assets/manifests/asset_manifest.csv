@@ -53,3 +53,7 @@ CH2-BG-03,ch2_fg_sakura.png,foreground,ch2,1920x1080,yes,separate,,P0,PLANNED
 CH3-BG-01,ch3_bg_mountains.webp,background,ch3,1920x1080,no,separate,,P0,PLANNED
 CH3-BG-02,ch3_bg_temple.webp,background,ch3,1920x1080,no,separate,,P0,PLANNED
 CH3-BG-03,ch3_fg_architecture.png,foreground,ch3,1920x1080,yes,separate,,P0,PLANNED
+CH1-MAP-BG-L,ch1_map_bg_16x9.webp,background_master,ch1,1920x1080,no,separate,,P0,REVIEW
+CH1-MAP-BG-P,ch1_map_bg_9x16.webp,background_master,ch1,1080x1920,no,separate,,P0,REVIEW
+CH1-LVL-BG-L,ch1_level_bg_16x9.webp,background_master,ch1,1920x1080,no,separate,,P0,REVIEW
+CH1-LVL-BG-P,ch1_level_bg_9x16.webp,background_master,ch1,1080x1920,no,separate,,P0,REVIEW

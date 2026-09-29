@@ -785,3 +785,14 @@ IAP, полноценный магазин, daily systems, коллекции, s
 - Для Chapter 1 зафиксированы runtime-имена: ch1_map_bg_16x9.webp, ch1_map_bg_9x16.webp, ch1_level_bg_16x9.webp, ch1_level_bg_9x16.webp.
 - Текущий ch1_bg_master.webp сохраняет статус TEST и будет заменён после выбора финальных фонов.
 - ASSET_PRODUCTION_SPEC.md, ATLAS_STRUCTURE.md и assets/README.md синхронизированы с новой структурой.
+
+
+### v0.16
+- Четыре фоновых кандидата Chapter 1 преобразованы в production-friendly WebP.
+- Карта landscape: 1920×1080 — `ch1_map_bg_16x9.webp`.
+- Карта portrait: 1080×1920 — `ch1_map_bg_9x16.webp`.
+- Gameplay landscape: 1920×1080 — `ch1_level_bg_16x9.webp`.
+- Gameplay portrait: 1080×1920 — `ch1_level_bg_9x16.webp`.
+- Файлы разложены в GitHub одновременно в source/candidate-папки и canonical runtime-папки Chapter 1.
+- Статус всех четырёх фонов: **REVIEW / на проверку**, не APPROVED.
+- Старый `ch1_bg_master.webp` пока не удалён и не заменён в MapScene; переключение сцены на новые фоны выполняется отдельным интеграционным шагом после визуального подтверждения.
