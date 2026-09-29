@@ -796,3 +796,17 @@ IAP, полноценный магазин, daily systems, коллекции, s
 - Файлы разложены в GitHub одновременно в source/candidate-папки и canonical runtime-папки Chapter 1.
 - Статус всех четырёх фонов: **REVIEW / на проверку**, не APPROVED.
 - Старый `ch1_bg_master.webp` пока не удалён и не заменён в MapScene; переключение сцены на новые фоны выполняется отдельным интеграционным шагом после визуального подтверждения.
+
+
+### v0.17
+- Уточнено фактическое состояние фоновой интеграции Chapter 1.
+- Четыре преобразованных фона уже находятся в GitHub в source/master и runtime-папках.
+- MapScene уже переключена со старого TEST master на отдельные map-фоны:
+  - assets/runtime/backgrounds/ch1/map/ch1_map_bg_16x9.webp;
+  - assets/runtime/backgrounds/ch1/map/ch1_map_bg_9x16.webp.
+- Выбор ориентации выполняется кодом по текущему размеру viewport.
+- Gameplay-фоны уже подготовлены и лежат в runtime:
+  - assets/runtime/backgrounds/ch1/gameplay/ch1_level_bg_16x9.webp;
+  - assets/runtime/backgrounds/ch1/gameplay/ch1_level_bg_9x16.webp.
+- Все четыре фона остаются в статусе REVIEW до визуального подтверждения пользователем.
+- Старый assets/runtime/backgrounds/ch1/ch1_bg_master.webp пока сохраняется как legacy TEST и не используется MapScene.
