@@ -853,3 +853,10 @@ IAP, полноценный магазин, daily systems, коллекции, s
 - Плитки/боoster UI в эту сцену пока не добавлены: задача версии — изолированно проверить фон, кадрирование и responsive layout.
 - Cache/version query поднят до v=20260929-4.
 - Gameplay-фоны остаются REVIEW до визуального утверждения.
+
+
+### v0.21
+- Добавлен прямой review-route: `?screen=game` запускает GameScene первой.
+- `?screen=game&debug=1` дополнительно показывает программный safe-area guide.
+- Обычный URL по-прежнему запускает MapScene.
+- Cache query поднят до v=20260929-5.
