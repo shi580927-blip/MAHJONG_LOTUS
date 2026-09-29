@@ -97,34 +97,37 @@ export class MapScene extends Phaser.Scene {
 
   createWorldBackground(bgKey) {
     const { width, height } = this.scale;
-    const portrait = height > width;
     const texture = this.textures.get(bgKey).getSourceImage();
     const srcW = texture.width;
     const srcH = texture.height;
 
-    // Each background chunk covers the visible viewport without stretching.
-    // Phaser clips everything to the canvas, so artwork never leaks outside the screen.
-    const scale = Math.max(width / srcW, height / srcH);
-    const chunkW = srcW * scale;
-    const chunkH = srcH * scale;
-    const span = portrait ? height : width;
-    const count = Math.ceil(this.worldExtent / span) + 1;
+    // The scenic artwork is a viewport background, not a world tile.
+    // Repeating it along the scroll axis created obvious seams and mirrored "extensions".
+    const containScale = Math.min(width / srcW, height / srcH);
+    const coverScale = Math.max(width / srcW, height / srcH);
+    const cropPressure = 1 - containScale / coverScale;
 
-    for (let i = 0; i < count; i++) {
-      const x = portrait ? width / 2 : i * span + width / 2;
-      const y = portrait ? i * span + height / 2 : height / 2;
+    const backdrop = this.add.image(width / 2, height / 2, bgKey)
+      .setOrigin(0.5)
+      .setScale(coverScale)
+      .setScrollFactor(0)
+      .setDepth(-100);
 
-      this.add.image(x, y, bgKey)
+    // On very wide/tall browser viewports, a pure cover would cut away too much art.
+    // Keep a subdued cover layer behind and show the complete artwork above it.
+    if (cropPressure > 0.08) {
+      backdrop.setAlpha(0.42).setTint(0x7b9289);
+
+      this.add.image(width / 2, height / 2, bgKey)
         .setOrigin(0.5)
-        .setScale(scale)
-        .setFlipX(i % 2 === 1)
-        .setDepth(-100);
+        .setScale(containScale)
+        .setScrollFactor(0)
+        .setDepth(-99);
     }
 
-    const veil = this.add.graphics().setDepth(-90);
-    veil.fillStyle(0x062f29, 0.08);
-    if (portrait) veil.fillRect(0, 0, width, this.worldExtent);
-    else veil.fillRect(0, 0, this.worldExtent, height);
+    this.add.rectangle(width / 2, height / 2, width, height, 0x062f29, 0.06)
+      .setScrollFactor(0)
+      .setDepth(-90);
   }
 
   createFallbackBackground() {
