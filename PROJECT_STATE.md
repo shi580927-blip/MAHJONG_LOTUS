@@ -839,3 +839,17 @@ IAP, полноценный магазин, daily systems, коллекции, s
 - Landscape HUD получил ограничение ширины для названия главы на узких экранах.
 - Cache/version query поднят до v=20260929-3.
 - Четыре Chapter 1 background-файла остаются REVIEW до визуального утверждения.
+
+
+### v0.20
+- Добавлена первая `GameScene` для проверки игрового фона Chapter 1 без производства новых графических ассетов.
+- MapScene теперь открывает GameScene по нажатию на доступную/пройденную ноду.
+- GameScene автоматически выбирает отдельный gameplay background по ориентации:
+  - assets/runtime/backgrounds/ch1/gameplay/ch1_level_bg_16x9.webp;
+  - assets/runtime/backgrounds/ch1/gameplay/ch1_level_bg_9x16.webp.
+- Фон масштабируется по cover-логике без растяжения; canvas обрезает только излишек за viewport.
+- Добавлен адаптивный HUD «Уровень + номер» и кнопка «На карту».
+- Для визуальной проверки safe area доступен режим `?debug=1`; guide создаётся кодом и не входит в production UI.
+- Плитки/боoster UI в эту сцену пока не добавлены: задача версии — изолированно проверить фон, кадрирование и responsive layout.
+- Cache/version query поднят до v=20260929-4.
+- Gameplay-фоны остаются REVIEW до визуального утверждения.
