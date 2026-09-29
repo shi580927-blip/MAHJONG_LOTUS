@@ -95,3 +95,20 @@ Runtime:
 - `runtime/backgrounds/ch1/gameplay/ch1_level_bg_9x16.webp`
 
 All four runtime backgrounds are exact target dimensions and WebP.
+
+
+### Chapter 1 canonical names
+
+Source masters:
+- `ch1_map_master_16x9.webp`
+- `ch1_map_master_9x16.webp`
+- `ch1_level_master_16x9.webp`
+- `ch1_level_master_9x16.webp`
+
+Runtime:
+- `ch1_map_bg_16x9.webp`
+- `ch1_map_bg_9x16.webp`
+- `ch1_level_bg_16x9.webp`
+- `ch1_level_bg_9x16.webp`
+
+Do not duplicate source masters under alternate filenames.

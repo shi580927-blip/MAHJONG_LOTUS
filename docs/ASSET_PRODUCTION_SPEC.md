@@ -574,3 +574,20 @@ assets/runtime/backgrounds/ch1/
 - существующий `ch1_bg_master.webp` остаётся TEST и не считается финальным фоном.
 
 Если после визуальной проверки потребуется parallax/ambient-разделение, производные слои `far/water/foreground` создаются из утверждённого master, а не вместо master-фонов.
+
+
+### Canonical Chapter 1 background files
+
+**Source masters / REVIEW**
+- `assets/source/chapters/ch1/backgrounds/map/landscape/ch1_map_master_16x9.webp` — 1920×1080;
+- `assets/source/chapters/ch1/backgrounds/map/portrait/ch1_map_master_9x16.webp` — 1080×1920;
+- `assets/source/chapters/ch1/backgrounds/gameplay/landscape/ch1_level_master_16x9.webp` — 1920×1080;
+- `assets/source/chapters/ch1/backgrounds/gameplay/portrait/ch1_level_master_9x16.webp` — 1080×1920.
+
+**Runtime / REVIEW**
+- `assets/runtime/backgrounds/ch1/map/ch1_map_bg_16x9.webp`;
+- `assets/runtime/backgrounds/ch1/map/ch1_map_bg_9x16.webp`;
+- `assets/runtime/backgrounds/ch1/gameplay/ch1_level_bg_16x9.webp`;
+- `assets/runtime/backgrounds/ch1/gameplay/ch1_level_bg_9x16.webp`.
+
+Исходные masters хранятся с повышенным качеством; runtime-копии оптимизированы по весу. Старый единый `ch1_bg_master.webp` удалён как REPLACED.

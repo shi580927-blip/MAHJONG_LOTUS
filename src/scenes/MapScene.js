@@ -27,11 +27,11 @@ export class MapScene extends Phaser.Scene {
 
     this.load.image(
       'ch1_map_bg_16x9',
-      'assets/runtime/backgrounds/ch1/map/ch1_map_bg_16x9.webp?v=20260929-1'
+      'assets/runtime/backgrounds/ch1/map/ch1_map_bg_16x9.webp?v=20260929-2'
     );
     this.load.image(
       'ch1_map_bg_9x16',
-      'assets/runtime/backgrounds/ch1/map/ch1_map_bg_9x16.webp?v=20260929-1'
+      'assets/runtime/backgrounds/ch1/map/ch1_map_bg_9x16.webp?v=20260929-2'
     );
   }
 

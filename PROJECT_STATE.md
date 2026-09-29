@@ -810,3 +810,21 @@ IAP, полноценный магазин, daily systems, коллекции, s
   - assets/runtime/backgrounds/ch1/gameplay/ch1_level_bg_9x16.webp.
 - Все четыре фона остаются в статусе REVIEW до визуального подтверждения пользователем.
 - Старый assets/runtime/backgrounds/ch1/ch1_bg_master.webp пока сохраняется как legacy TEST и не используется MapScene.
+
+
+### v0.18
+- Фоны Chapter 1 окончательно разложены по production-структуре GitHub.
+- Canonical source masters:
+  - assets/source/chapters/ch1/backgrounds/map/landscape/ch1_map_master_16x9.webp;
+  - assets/source/chapters/ch1/backgrounds/map/portrait/ch1_map_master_9x16.webp;
+  - assets/source/chapters/ch1/backgrounds/gameplay/landscape/ch1_level_master_16x9.webp;
+  - assets/source/chapters/ch1/backgrounds/gameplay/portrait/ch1_level_master_9x16.webp.
+- Canonical runtime backgrounds:
+  - assets/runtime/backgrounds/ch1/map/ch1_map_bg_16x9.webp;
+  - assets/runtime/backgrounds/ch1/map/ch1_map_bg_9x16.webp;
+  - assets/runtime/backgrounds/ch1/gameplay/ch1_level_bg_16x9.webp;
+  - assets/runtime/backgrounds/ch1/gameplay/ch1_level_bg_9x16.webp.
+- Удалены промежуточные дубли master-файлов и legacy TEST ch1_bg_master.webp.
+- MapScene использует отдельный background для landscape и portrait.
+- Cache query для фоновых ассетов поднят до v=20260929-2.
+- Статус четырёх новых фонов остаётся REVIEW / на проверку до визуального утверждения.

@@ -1,4 +1,4 @@
-import { MapScene } from './scenes/MapScene.js';
+import { MapScene } from './scenes/MapScene.js?v=20260929-2';
 
 const config = {
   type: Phaser.AUTO,
