@@ -18,7 +18,7 @@ const config = {
   input: {
     activePointers: 3,
   },
-  scene: [MapScene, GameScene],
+  scene: initialScene,
 };
 
 new Phaser.Game(config);
