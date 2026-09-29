@@ -1,5 +1,5 @@
-import { MapScene } from './scenes/MapScene.js?v=20260929-6';
-import { GameScene } from './scenes/GameScene.js?v=20260929-6';
+import { MapScene } from './scenes/MapScene.js?v=20260929-7';
+import { GameScene } from './scenes/GameScene.js?v=20260929-7';
 
 const params = new URLSearchParams(window.location.search);
 const initialScene = params.get('screen') === 'game'
