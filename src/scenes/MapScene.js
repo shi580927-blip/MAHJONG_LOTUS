@@ -365,6 +365,6 @@ export class MapScene extends Phaser.Scene {
 
   onNodePressed(level) {
     if (level > this.currentLevel + 1) return;
-    console.log(`[MapScene] open level ${level}`);
+    this.scene.start('GameScene', { level });
   }
 }
