@@ -16,212 +16,194 @@ export class MapScene extends Phaser.Scene {
     this.currentLevel = 6;
     this.dragStart = null;
     this.worldExtent = 0;
+    this.reviewArt = false;
   }
 
   preload() {
+    this.reviewArt = new URLSearchParams(window.location.search).get('art') === '1';
+    if (!this.reviewArt) return;
+
     this.load.atlas(
       ATLAS_KEY,
-      'assets/runtime/atlases/map_common/map_common.webp?v=20260922-1',
-      'assets/runtime/atlases/map_common/map_common.json?v=20260922-1'
+      'assets/runtime/atlases/map_common/map_common.webp?v=20260930-1',
+      'assets/runtime/atlases/map_common/map_common.json?v=20260930-1'
     );
-
     this.load.image(
       'ch1_map_bg_16x9',
-      'assets/runtime/backgrounds/ch1/map/ch1_map_bg_16x9.webp?v=20260929-2'
+      'assets/runtime/backgrounds/ch1/map/ch1_map_bg_16x9.webp?v=20260930-1'
     );
     this.load.image(
       'ch1_map_bg_9x16',
-      'assets/runtime/backgrounds/ch1/map/ch1_map_bg_9x16.webp?v=20260929-2'
+      'assets/runtime/backgrounds/ch1/map/ch1_map_bg_9x16.webp?v=20260930-1'
     );
   }
 
   create() {
-    this.cameras.main.setBackgroundColor('#0d3b32');
-
-    if (!this.textures.exists(ATLAS_KEY)) {
-      this.createFallbackMapTextures();
-    }
-
+    this.cameras.main.setBackgroundColor('#112a26');
+    this.createFallbackMapTextures();
     this.buildPath();
 
-    const bgKey = this.scale.height > this.scale.width ? 'ch1_map_bg_9x16' : 'ch1_map_bg_16x9';
-    if (this.textures.exists(bgKey)) {
-      this.createWorldBackground(bgKey);
+    if (this.reviewArt) {
+      const bgKey = this.scale.height > this.scale.width ? 'ch1_map_bg_9x16' : 'ch1_map_bg_16x9';
+      if (this.textures.exists(bgKey)) this.createWorldBackground(bgKey);
+      else this.createWireframeBackground();
     } else {
-      this.createFallbackBackground();
+      this.createWireframeBackground();
     }
 
     this.createHud();
     this.enableMapScroll();
-
-    this.scale.on('resize', () => this.scene.restart());
   }
 
   createFallbackMapTextures() {
+    if (this.textures.exists('fallback_completed')) return;
+
     const specs = {
-      completed: 0xf7efd8,
-      current: 0xff79a9,
-      available: 0xf8f0dc,
-      locked: 0x777777,
-      milestone: 0xff8eb7,
-      chapter_end: 0xffa3c3,
+      completed: 0xe9e0c7,
+      current: 0xff9fbd,
+      available: 0xfff3d8,
+      locked: 0x777d79,
+      milestone: 0xf3c36b,
+      chapter_end: 0xd9a64c,
     };
 
     Object.entries(specs).forEach(([state, fill]) => {
       const size = state === 'chapter_end' ? 192 : state === 'milestone' ? 176 : 160;
       const g = this.make.graphics({ x: 0, y: 0, add: false });
-      g.fillStyle(0x064d42, 1);
-      g.fillCircle(size / 2, size * 0.58, size * 0.34);
-      g.lineStyle(Math.max(4, size * 0.035), 0xe8b94f, 1);
-      g.strokeCircle(size / 2, size * 0.58, size * 0.34);
+      g.fillStyle(0x075247, 1);
+      g.fillCircle(size / 2, size / 2, size * 0.34);
+      g.lineStyle(Math.max(5, size * 0.035), 0xe0b34b, 1);
+      g.strokeCircle(size / 2, size / 2, size * 0.34);
       g.fillStyle(fill, 1);
-      g.fillCircle(size / 2, size * 0.43, size * 0.23);
-
+      g.fillCircle(size / 2, size / 2, size * 0.22);
       if (state === 'locked') {
-        g.fillStyle(0xe8b94f, 1);
-        g.fillRoundedRect(size * 0.38, size * 0.38, size * 0.24, size * 0.22, 8);
+        g.fillStyle(0xe0b34b, 1);
+        g.fillRoundedRect(size * 0.41, size * 0.41, size * 0.18, size * 0.20, 8);
       }
-
       g.generateTexture(`fallback_${state}`, size, size);
       g.destroy();
     });
 
     const d = this.make.graphics({ x: 0, y: 0, add: false });
-    d.fillStyle(0xf5c451, 1);
-    d.fillCircle(24, 24, 11);
-    d.lineStyle(3, 0xffefb0, 1);
-    d.strokeCircle(24, 24, 11);
+    d.fillStyle(0xe9bd54, 1);
+    d.fillCircle(24, 24, 9);
     d.generateTexture('fallback_path_dot', 48, 48);
     d.destroy();
   }
 
-  createWorldBackground(bgKey) {
+  createWireframeBackground() {
     const { width, height } = this.scale;
-    const texture = this.textures.get(bgKey).getSourceImage();
-    const srcW = texture.width;
-    const srcH = texture.height;
+    const portrait = height > width;
+    const g = this.add.graphics().setDepth(-100);
 
-    // The scenic artwork is a viewport background, not a world tile.
-    // Repeating it along the scroll axis created obvious seams and mirrored "extensions".
-    const containScale = Math.min(width / srcW, height / srcH);
-    const coverScale = Math.max(width / srcW, height / srcH);
-    const cropPressure = 1 - containScale / coverScale;
+    g.fillStyle(0xe9e2d4, 1);
+    g.fillRect(0, 0, portrait ? width : this.worldExtent, portrait ? this.worldExtent : height);
 
-    const backdrop = this.add.image(width / 2, height / 2, bgKey)
-      .setOrigin(0.5)
-      .setScale(coverScale)
-      .setScrollFactor(0)
-      .setDepth(-100);
+    // Fixed design frame zones.
+    const topH = portrait ? 240 : 170;
+    const bottomH = portrait ? 250 : 150;
 
-    // On very wide/tall browser viewports, a pure cover would cut away too much art.
-    // Keep a subdued cover layer behind and show the complete artwork above it.
-    if (cropPressure > 0.08) {
-      backdrop.setAlpha(0.42).setTint(0x7b9289);
+    g.fillStyle(0x173e36, 0.14);
+    g.fillRect(0, 0, portrait ? width : this.worldExtent, topH);
 
-      this.add.image(width / 2, height / 2, bgKey)
-        .setOrigin(0.5)
-        .setScale(containScale)
-        .setScrollFactor(0)
-        .setDepth(-99);
+    if (portrait) {
+      for (let y = height; y < this.worldExtent; y += height) {
+        g.fillRect(0, y, width, topH);
+      }
     }
 
-    this.add.rectangle(width / 2, height / 2, width, height, 0x062f29, 0.06)
-      .setScrollFactor(0)
-      .setDepth(-90);
+    g.fillStyle(0x173e36, 0.10);
+    if (portrait) {
+      for (let y = bottomH; y < this.worldExtent; y += height) {
+        g.fillRect(0, y - bottomH, width, bottomH);
+      }
+    } else {
+      g.fillRect(0, height - bottomH, this.worldExtent, bottomH);
+    }
+
+    g.lineStyle(5, 0x0b5a4a, 0.42);
+    if (portrait) {
+      const corridorW = width * 0.72;
+      g.strokeRect((width - corridorW) / 2, topH, corridorW, this.worldExtent - topH - bottomH);
+    } else {
+      const corridorH = height - topH - bottomH;
+      g.strokeRect(0, topH, this.worldExtent, corridorH);
+    }
+
+    this.add.text(width / 2, portrait ? 285 : 205, 'WIREFRAME · PATH CORRIDOR', {
+      fontFamily: 'Arial, sans-serif',
+      fontSize: portrait ? '30px' : '26px',
+      color: '#31584f',
+      fontStyle: 'bold',
+    }).setOrigin(0.5).setDepth(-80);
   }
 
-  createFallbackBackground() {
+  createWorldBackground(bgKey) {
     const { width, height } = this.scale;
-    const g = this.add.graphics().setScrollFactor(0).setDepth(-100);
-    g.fillGradientStyle(0x123f35, 0x164f43, 0x071f1b, 0x0a2f29, 1);
-    g.fillRect(0, 0, width, height);
+    const portrait = height > width;
+    const source = this.textures.get(bgKey).getSourceImage();
+    const scale = Math.max(width / source.width, height / source.height);
+    const span = portrait ? height : width;
+    const count = Math.ceil(this.worldExtent / span) + 1;
 
-    for (let i = 0; i < 18; i++) {
-      const x = (i * 173) % width;
-      const y = 90 + ((i * 97) % Math.max(160, height - 180));
-      g.fillStyle(0xffffff, 0.035);
-      g.fillCircle(x, y, 80 + (i % 4) * 22);
+    for (let i = 0; i < count; i++) {
+      const x = portrait ? width / 2 : i * span + width / 2;
+      const y = portrait ? i * span + height / 2 : height / 2;
+      this.add.image(x, y, bgKey)
+        .setOrigin(0.5)
+        .setScale(scale)
+        .setFlipX(i % 2 === 1)
+        .setDepth(-100);
     }
+
+    const veil = this.add.graphics().setDepth(-90);
+    veil.fillStyle(0x062f29, 0.22);
+    if (portrait) veil.fillRect(0, 0, width, this.worldExtent);
+    else veil.fillRect(0, 0, this.worldExtent, height);
   }
 
   createHud() {
     const { width, height } = this.scale;
     const portrait = height > width;
-    const edge = Phaser.Math.Clamp(width * 0.045, 14, 32);
+    const edge = portrait ? 48 : 54;
 
-    if (portrait) {
-      const titleSize = Phaser.Math.Clamp(width * 0.072, 24, 32);
-      const chapterSize = Phaser.Math.Clamp(width * 0.043, 15, 19);
-
-      const title = this.add.text(edge, edge, `Уровень ${this.currentLevel}`, {
-        fontFamily: 'Georgia, serif',
-        fontSize: `${titleSize}px`,
-        fontStyle: 'bold',
-        color: '#fff3cc',
-        stroke: '#123b31',
-        strokeThickness: 6,
-      }).setScrollFactor(0).setDepth(1000);
-
-      const chapter = this.add.text(width / 2, edge + titleSize + 16, `Глава I · ${CHAPTER_1.title}`, {
-        fontFamily: 'Georgia, serif',
-        fontSize: `${chapterSize}px`,
-        color: '#f4dfaa',
-        stroke: '#123b31',
-        strokeThickness: 5,
-        align: 'center',
-        wordWrap: { width: width - edge * 2, useAdvancedWrap: true },
-      }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(1000);
-
-      return { title, chapter };
-    }
-
-    const title = this.add.text(edge, edge, `Уровень ${this.currentLevel}`, {
+    this.add.text(edge, edge, `Уровень ${this.currentLevel}`, {
       fontFamily: 'Georgia, serif',
-      fontSize: '34px',
+      fontSize: portrait ? '54px' : '52px',
       fontStyle: 'bold',
-      color: '#fff3cc',
-      stroke: '#123b31',
+      color: this.reviewArt ? '#fff3cc' : '#183f37',
+      stroke: this.reviewArt ? '#123b31' : '#e9e2d4',
       strokeThickness: 6,
     }).setScrollFactor(0).setDepth(1000);
 
-    const chapter = this.add.text(width - edge, edge + 4, `Глава I · ${CHAPTER_1.title}`, {
-      fontFamily: 'Georgia, serif',
-      fontSize: '22px',
-      color: '#f4dfaa',
-      stroke: '#123b31',
-      strokeThickness: 5,
-    }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
+    const chapter = this.add.text(
+      portrait ? width / 2 : width - edge,
+      portrait ? 130 : edge + 8,
+      `Глава I · ${CHAPTER_1.title}`,
+      {
+        fontFamily: 'Georgia, serif',
+        fontSize: portrait ? '34px' : '34px',
+        color: this.reviewArt ? '#f4dfaa' : '#31584f',
+        stroke: this.reviewArt ? '#123b31' : '#e9e2d4',
+        strokeThickness: 5,
+        align: 'center',
+      }
+    ).setScrollFactor(0).setDepth(1000);
 
-    // On unusually narrow landscape screens, keep both HUD labels inside the viewport.
-    const maxChapterWidth = Math.max(180, width - title.width - edge * 3);
-    if (chapter.width > maxChapterWidth) {
-      chapter.setFontSize(18);
-      chapter.setWordWrapWidth(maxChapterWidth, true);
-    }
-
-    return { title, chapter };
+    chapter.setOrigin(portrait ? 0.5 : 1, 0);
   }
 
   buildPath() {
     const { width, height } = this.scale;
     const portrait = height > width;
-    const nodeScale = portrait
-      ? Phaser.Math.Clamp(width / 520, 0.54, 0.72)
-      : Phaser.Math.Clamp(height / 690, 0.62, 0.78);
-
-    const positions = portrait
-      ? this.makePortraitPositions(width, nodeScale)
-      : this.makeLandscapePositions(height, nodeScale);
+    const positions = portrait ? this.makePortraitPositions() : this.makeLandscapePositions();
 
     this.worldExtent = portrait
-      ? positions[positions.length - 1].y + 260
-      : positions[positions.length - 1].x + 320;
+      ? positions[positions.length - 1].y + 300
+      : positions[positions.length - 1].x + 360;
 
-    if (portrait) {
-      this.cameras.main.setBounds(0, 0, width, this.worldExtent);
-    } else {
-      this.cameras.main.setBounds(0, 0, this.worldExtent, height);
-    }
+    if (portrait) this.cameras.main.setBounds(0, 0, width, this.worldExtent);
+    else this.cameras.main.setBounds(0, 0, this.worldExtent, height);
 
     this.drawPathDots(positions);
 
@@ -231,46 +213,37 @@ export class MapScene extends Phaser.Scene {
       if ([5, 10, 15].includes(level) && level < this.currentLevel) state = 'milestone';
       if (level === 20) state = this.currentLevel >= 20 ? 'chapter_end' : 'locked';
 
-      const hasAtlas = this.textures.exists(ATLAS_KEY);
-      const node = hasAtlas
+      const useAtlas = this.reviewArt && this.textures.exists(ATLAS_KEY);
+      const node = useAtlas
         ? this.add.image(p.x, p.y, ATLAS_KEY, FRAME_BY_STATE[state])
         : this.add.image(p.x, p.y, `fallback_${state}`);
 
+      const nodeScale = portrait ? 1.0 : 0.92;
       node
+        .setScale(level % 5 === 0 ? nodeScale * 1.12 : nodeScale)
         .setDepth(20)
         .setInteractive({ useHandCursor: state !== 'locked' });
 
-      node.setScale(level % 5 === 0 ? nodeScale * 1.08 : nodeScale);
-
-      const labelOffset = (portrait ? 68 : 70) * nodeScale;
-      this.add.text(p.x, p.y + labelOffset, String(level), {
+      this.add.text(p.x, p.y + (portrait ? 82 : 72), String(level), {
         fontFamily: 'Georgia, serif',
-        fontSize: portrait
-          ? `${Phaser.Math.Clamp(width * 0.052, 18, 22)}px`
-          : `${Phaser.Math.Clamp(height * 0.033, 20, 24)}px`,
+        fontSize: portrait ? '34px' : '30px',
         fontStyle: 'bold',
-        color: '#fff6d5',
-        stroke: '#0a4036',
+        color: this.reviewArt ? '#fff6d5' : '#163f37',
+        stroke: this.reviewArt ? '#0a4036' : '#f3ead9',
         strokeThickness: 5,
       }).setOrigin(0.5).setDepth(30);
 
-      if (state !== 'locked') {
-        node.on('pointerdown', () => this.onNodePressed(level));
-      }
+      if (state !== 'locked') node.on('pointerdown', () => this.onNodePressed(level));
     });
 
     const target = positions[Math.max(0, this.currentLevel - 1)];
     if (portrait) {
       this.cameras.main.scrollY = Phaser.Math.Clamp(
-        target.y - height * 0.55,
-        0,
-        Math.max(0, this.worldExtent - height)
+        target.y - height * 0.55, 0, Math.max(0, this.worldExtent - height)
       );
     } else {
       this.cameras.main.scrollX = Phaser.Math.Clamp(
-        target.x - width * 0.45,
-        0,
-        Math.max(0, this.worldExtent - width)
+        target.x - width * 0.42, 0, Math.max(0, this.worldExtent - width)
       );
     }
   }
@@ -280,62 +253,43 @@ export class MapScene extends Phaser.Scene {
       const a = positions[i];
       const b = positions[i + 1];
       const distance = Phaser.Math.Distance.Between(a.x, a.y, b.x, b.y);
-      const count = Math.max(2, Math.floor(distance / 44));
-
+      const count = Math.max(2, Math.floor(distance / 58));
       for (let n = 1; n < count; n++) {
         const t = n / count;
-        const dot = this.textures.exists(ATLAS_KEY)
-          ? this.add.image(
-              Phaser.Math.Linear(a.x, b.x, t),
-              Phaser.Math.Linear(a.y, b.y, t),
-              ATLAS_KEY,
-              'map_path_dot'
-            )
-          : this.add.image(
-              Phaser.Math.Linear(a.x, b.x, t),
-              Phaser.Math.Linear(a.y, b.y, t),
-              'fallback_path_dot'
-            );
-
-        dot
-          .setScale(0.34)
-          .setAlpha(i + 1 < this.currentLevel ? 0.95 : 0.48)
-          .setDepth(5);
+        const useAtlas = this.reviewArt && this.textures.exists(ATLAS_KEY);
+        const dot = useAtlas
+          ? this.add.image(Phaser.Math.Linear(a.x, b.x, t), Phaser.Math.Linear(a.y, b.y, t), ATLAS_KEY, 'map_path_dot')
+          : this.add.image(Phaser.Math.Linear(a.x, b.x, t), Phaser.Math.Linear(a.y, b.y, t), 'fallback_path_dot');
+        dot.setScale(useAtlas ? 0.34 : 0.48).setAlpha(i + 1 < this.currentLevel ? 0.95 : 0.45).setDepth(5);
       }
     }
   }
 
-  makePortraitPositions(width, nodeScale) {
-    const nodeHalf = 96 * nodeScale;
-    const edge = Math.max(nodeHalf + 18, width * 0.12);
-    const usable = Math.max(1, width - edge * 2);
-    const stepY = Phaser.Math.Clamp(this.scale.height * 0.12, 132, 168);
-    const startY = Math.max(190, this.scale.height * 0.12);
+  makePortraitPositions() {
+    const width = 1080;
+    const edge = 170;
+    const usable = width - edge * 2;
+    const startY = 320;
+    const stepY = 225;
 
     return Array.from({ length: 20 }, (_, i) => ({
-      x: Phaser.Math.Clamp(
-        edge + usable * (0.5 + Math.sin(i * 0.86) * 0.43),
-        edge,
-        width - edge
-      ),
+      x: edge + usable * (0.5 + Math.sin(i * 0.88) * 0.43),
       y: startY + i * stepY,
     }));
   }
 
-  makeLandscapePositions(height, nodeScale) {
-    const nodeHalf = 96 * nodeScale;
-    const topSafe = Math.max(nodeHalf + 24, height * 0.18);
-    const bottomSafe = Math.max(nodeHalf + 24, height * 0.12);
-    const minY = topSafe;
-    const maxY = Math.max(minY, height - bottomSafe);
+  makeLandscapePositions() {
+    const height = 1080;
+    const minY = 245;
+    const maxY = 840;
     const centerY = (minY + maxY) / 2;
-    const amplitude = Math.max(0, Math.min(190, (maxY - minY) * 0.43));
-    const stepX = Phaser.Math.Clamp(this.scale.width * 0.095, 155, 185);
-    const startX = Math.max(nodeHalf + 34, 140);
+    const amplitude = 245;
+    const startX = 210;
+    const stepX = 275;
 
     return Array.from({ length: 20 }, (_, i) => ({
       x: startX + i * stepX,
-      y: Phaser.Math.Clamp(centerY + Math.sin(i * 0.92) * amplitude, minY, maxY),
+      y: Phaser.Math.Clamp(centerY + Math.sin(i * 0.95) * amplitude, minY, maxY),
     }));
   }
 
@@ -344,12 +298,7 @@ export class MapScene extends Phaser.Scene {
     const portrait = this.scale.height > this.scale.width;
 
     this.input.on('pointerdown', pointer => {
-      this.dragStart = {
-        x: pointer.x,
-        y: pointer.y,
-        scrollX: cam.scrollX,
-        scrollY: cam.scrollY,
-      };
+      this.dragStart = { x: pointer.x, y: pointer.y, scrollX: cam.scrollX, scrollY: cam.scrollY };
     });
 
     this.input.on('pointermove', pointer => {
@@ -359,7 +308,6 @@ export class MapScene extends Phaser.Scene {
     });
 
     this.input.on('pointerup', () => { this.dragStart = null; });
-
     this.input.on('wheel', (_pointer, _objects, dx, dy) => {
       if (portrait) cam.scrollY += dy * 0.8;
       else cam.scrollX += (Math.abs(dx) > Math.abs(dy) ? dx : dy) * 0.8;
