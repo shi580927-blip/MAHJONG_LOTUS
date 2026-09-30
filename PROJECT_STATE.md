@@ -227,6 +227,18 @@ UI: premium jade + gold + light ivory, без декоративного пер�
 - один набор map_common используется и в 16:9, и в 9:16;
 - FX не входят в Batch C и выполняются отдельным последующим проходом.
 
+### DEC-039 — Fixed design frame + wireframe-first workflow
+**Статус:** APPROVED  
+После визуальной проверки 2026-09-30 утверждён новый производственный порядок.
+- Логический landscape frame строго 1920×1080.
+- Логический portrait frame строго 1080×1920.
+- На ultra-wide/нестандартных экранах gameplay-композиция не расширяется; используется FIT/contain и внешнее matte-пространство.
+- Сначала technical frame и wireframe четырёх экранов, затем layout approval, затем background composition, clean art и integration preview.
+- Portrait является отдельным layout, не автоматическим crop landscape.
+- Текущие Chapter 1 backgrounds остаются REVIEW/TEST и не определяют геометрию.
+- Новые финальные background/decoration batches не производятся до утверждения wireframe соответствующего экрана.
+- Полная operational-спецификация: `docs/LAYOUT_WORKFLOW.md`.
+
 ### NAME-CHECK-EN-001 — Английское название
 **Статус:** NEEDS FINAL CLEARANCE  
 Рабочее название остаётся **Mahjong: Lotus Path**, но оно **не считается окончательно очищенным**. По веб-проверке на 2026-09-20 точного совпадения «Mahjong: Lotus Path» не найдено, однако:
