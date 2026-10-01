@@ -1,6 +1,6 @@
 # TEXTURE ATLAS & ASSET STRUCTURE — Маджонг: Путь Лотоса
 
-**Цель:** минимизировать draw calls и число файлов, не загружая в GPU ассеты всех трёх глав одновременно.
+**Цель:** минимизировать draw calls и число файлов, не загружая в GPU ассеты всех трёх глав одновременно. Screen-dependent backgrounds подчиняются `docs/LAYOUT_WORKFLOW.md` и не становятся production до layout approval.
 
 ---
 
@@ -12,7 +12,8 @@
 1. common — нужен часто;
 2. chapter-specific — загружается только для текущей главы;
 3. large backgrounds — отдельные WebP/PNG;
-4. FX — отдельные atlases после основного asset pass.
+4. screen-dependent backgrounds/decor — только после wireframe/layout approval;
+5. FX — отдельные atlases после статического production pass.
 
 ---
 
@@ -149,17 +150,18 @@ assets/
 Большие backgrounds хранятся отдельно, чтобы:
 - не раздувать atlas;
 - независимо сжимать WebP;
-- грузить их по chapter;
+- грузить их по chapter и экрану;
 - не держать предыдущую главу в GPU.
 
-Пример:
-```text
-runtime/backgrounds/ch1/ch1_bg_far.webp
-runtime/backgrounds/ch1/ch1_bg_water.webp
-runtime/backgrounds/ch1/ch1_fg_soft.png
-```
+Design frames фиксированы:
+- landscape — 1920×1080;
+- portrait — 1080×1920.
 
----
+Map и Gameplay имеют отдельные background compositions. Portrait — самостоятельная композиция, не crop landscape.
+
+Production background допускается только после layout approval. До этого файл может иметь только статус TEST / REVIEW.
+
+Extra physical viewport за пределами fixed design frame не является gameplay background. Он заполняется внешним matte/decor на уровне контейнера/страницы и не расширяет игровую композицию.
 
 ## 5. LOAD POLICY
 
@@ -299,26 +301,20 @@ Atlas считается готовым, если:
 
 ## 13. CURRENT PROTOTYPE INTEGRATION
 
-**Статус:** TEST / на проверку.
+**Статус:** TEST / wireframe review.
 
-Для первой визуальной интеграции карты в Phaser в репозиторий добавлен runtime proxy:
-- `assets/runtime/atlases/map_common/map_common.webp`;
-- `assets/runtime/atlases/map_common/map_common.json`.
+Уже подключено:
+- `assets/runtime/atlases/map_common/map_common.webp` + `map_common.json`;
+- fixed logical frames 1920×1080 / 1080×1920;
+- Phaser.Scale.FIT;
+- wireframe mode по умолчанию;
+- отдельные MapScene и GameScene.
 
-WebP здесь используется только как лёгкий **TEST runtime proxy**, чтобы немедленно проверить карту на GitHub Pages. Утверждённый production-стандарт не меняется: финальный `map_common` перед production freeze экспортируется как **PNG + JSON**, с alpha, padding 4 px, extrusion 2 px, rotation OFF.
+Существующие Chapter 1 art backgrounds загружаются только в review-режиме `?art=1` и не считаются production-approved.
 
-Для Chapter 1 временно подключён:
-- `assets/runtime/backgrounds/ch1/ch1_bg_master.webp` — 1920×1080, TEST.
+`map_common.webp` остаётся лёгким runtime proxy для текущей интеграции; production freeze map_common — PNG + JSON с alpha, padding 4 px, extrusion 2 px, rotation OFF.
 
-Это не заменяет утверждённую трёхслойную структуру Batch D:
-- `ch1_bg_far.webp`;
-- `ch1_bg_water.webp`;
-- `ch1_fg_soft.png`.
-
-Цель текущей версии — проверить композицию, прокрутку, размеры нод и адаптацию 16:9 / 9:16 до дальнейшего производства графики.
-
-
----
+Art-first background integration больше не используется как источник layout-геометрии.
 
 ## 14. BACKGROUND SOURCE/RUNTIME LAYOUT
 
@@ -339,10 +335,20 @@ assets/runtime/backgrounds/chN/
   gameplay/
 ```
 
-Для Chapter 1 runtime:
-- `map/ch1_map_bg_16x9.webp`
-- `map/ch1_map_bg_9x16.webp`
-- `gameplay/ch1_level_bg_16x9.webp`
-- `gameplay/ch1_level_bg_9x16.webp`
+Для Chapter 1 сейчас существуют:
+- `map/ch1_map_bg_16x9.webp`;
+- `map/ch1_map_bg_9x16.webp`;
+- `gameplay/ch1_level_bg_16x9.webp`;
+- `gameplay/ch1_level_bg_9x16.webp`.
 
-Source может содержать несколько кандидатов. Runtime содержит только выбранный и оптимизированный вариант, реально используемый Phaser. Это позволяет не путать концепты с production-файлами и не раздувать загрузку игры.
+Текущий статус четырёх файлов: **TEST / REVIEW**.
+
+Правила:
+- source может содержать кандидатов и masters;
+- runtime содержит только файл, который реально может загрузить Phaser;
+- наличие runtime-файла не означает APPROVED;
+- production replacement допускается только после wireframe/layout approval;
+- landscape и portrait — отдельные композиции;
+- автоматический crop/тайлинг/зеркалирование не считается production-решением для background composition;
+- full-screen far/mid/foreground layers создаются только после утверждения clean composition и только если реально нужны parallax/ambient-эффектам;
+- матовые внешние поля ultra-wide не входят в gameplay background и не попадают в эти папки.
