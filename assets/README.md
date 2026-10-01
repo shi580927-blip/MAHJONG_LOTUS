@@ -1,27 +1,35 @@
 # Assets — production rules
 
-Источник правил:
+Главные источники:
+- `docs/LAYOUT_WORKFLOW.md`
 - `docs/ASSET_PRODUCTION_SPEC.md`
 - `docs/ATLAS_STRUCTURE.md`
 - `assets/manifests/asset_manifest.csv`
 - `assets/manifests/atlas_manifest.json`
 
 ## Главное
-- 24 tile symbols.
-- Одна геометрия плитки, 3 chapter bases.
-- 60 уровней = JSON, не изображения.
-- Карта собирается слоями.
-- Large backgrounds отдельно.
-- Small sprites в atlas.
-- Chapter-specific atlases загружаются по требованию.
-- FX — отдельный pass после статических ассетов.
+
+Уже утверждено и не откатывается:
+- 24 tile symbols;
+- одна геометрия плитки + 3 chapter bases;
+- Core UI;
+- map_common;
+- 60 уровней хранятся как данные/JSON;
+- small sprites — texture atlas;
+- chapter-specific atlases — lazy load;
+- FX — отдельный pass.
+
+Новый обязательный принцип для screen-dependent art:
+- design frame только 1920×1080 и 1080×1920;
+- сначала safe zones и wireframe;
+- затем layout approval;
+- только потом background composition;
+- portrait — отдельная композиция, не crop;
+- ultra-wide не расширяет gameplay frame.
 
 Не добавлять новые asset names без обновления manifest.
 
-
 ## Background folders
-
-Source/master images and candidates are stored separately from files already used by the game:
 
 ```text
 assets/source/chapters/
@@ -63,24 +71,18 @@ assets/runtime/backgrounds/
 ```
 
 Rules:
-- `source` = originals, generated candidates, approved masters before optimization;
-- `runtime` = only files actually loaded by Phaser;
+- `source` = originals, generated candidates, masters before optimization;
+- `runtime` = files actually available to Phaser;
+- наличие файла в runtime не означает APPROVED;
 - landscape target = 1920×1080;
 - portrait target = 1080×1920;
 - final large opaque backgrounds = WebP;
 - no UI/text/nodes are baked into backgrounds;
-- do not overwrite an APPROVED file with an experiment; keep experiment in `source` until approved.
+- do not overwrite an APPROVED file with an experiment;
+- existing Chapter 1 backgrounds are **TEST / REVIEW reference only** until their screen layout is approved;
+- old root `ch1_bg_master.webp` is REPLACED/removed and must not be restored.
 
-Chapter 1 target runtime filenames:
-- `backgrounds/ch1/map/ch1_map_bg_16x9.webp`
-- `backgrounds/ch1/map/ch1_map_bg_9x16.webp`
-- `backgrounds/ch1/gameplay/ch1_level_bg_16x9.webp`
-- `backgrounds/ch1/gameplay/ch1_level_bg_9x16.webp`
-
-The current root-level `ch1_bg_master.webp` remains TEST only until replaced by selected production backgrounds.
-
-
-### Chapter 1 — files already placed
+## Chapter 1 current reference files
 
 Source masters:
 - `source/chapters/ch1/backgrounds/map/landscape/ch1_map_master_16x9.webp`
@@ -94,21 +96,6 @@ Runtime:
 - `runtime/backgrounds/ch1/gameplay/ch1_level_bg_16x9.webp`
 - `runtime/backgrounds/ch1/gameplay/ch1_level_bg_9x16.webp`
 
-All four runtime backgrounds are exact target dimensions and WebP.
+Все четыре файла имеют правильные target dimensions, но статус остаётся TEST / REVIEW.
 
-
-### Chapter 1 canonical names
-
-Source masters:
-- `ch1_map_master_16x9.webp`
-- `ch1_map_master_9x16.webp`
-- `ch1_level_master_16x9.webp`
-- `ch1_level_master_9x16.webp`
-
-Runtime:
-- `ch1_map_bg_16x9.webp`
-- `ch1_map_bg_9x16.webp`
-- `ch1_level_bg_16x9.webp`
-- `ch1_level_bg_9x16.webp`
-
-Do not duplicate source masters under alternate filenames.
+Следующая производственная работа по графике начинается только после утверждения четырёх wireframe-экранов. Первый новый background-pass — Gameplay 16:9.
