@@ -228,24 +228,32 @@ UI: premium jade + gold + light ivory, без декоративного пер�
 - FX не входят в Batch C и выполняются отдельным последующим проходом.
 
 ### DEC-039 — Fixed design frame + wireframe-first workflow
-**Статус:** APPROVED  
-После визуальной проверки 2026-09-30 утверждён новый производственный порядок.
-- Логический landscape frame строго 1920×1080.
-- Логический portrait frame строго 1080×1920.
-- На ultra-wide/нестандартных экранах gameplay-композиция не расширяется; используется FIT/contain и внешнее matte-пространство.
-- Сначала technical frame и wireframe четырёх экранов, затем layout approval, затем background composition, clean art и integration preview.
-- Portrait является отдельным layout, не автоматическим crop landscape.
-- Текущие Chapter 1 backgrounds остаются REVIEW/TEST и не определяют геометрию.
-- Новые финальные background/decoration batches не производятся до утверждения wireframe соответствующего экрана.
-- Полная operational-спецификация: `docs/LAYOUT_WORKFLOW.md`.
+**Статус:** APPROVED / REAFFIRMED 2026-10-01  
+Art-first подход прекращён. Игровая композиция существует только внутри двух фиксированных design frame:
+- landscape — **1920×1080**;
+- portrait — **1080×1920**.
 
-### DEC-039 — Fixed design frame workflow
-**Статус:** APPROVED  
-Игровая композиция существует только в двух логических design frame:
-- landscape — 1920×1080;
-- portrait — 1080×1920.
+На реальном viewport используется **FIT / contain** с центрированием. Ultra-wide и нестандартные экраны не расширяют gameplay-композицию: дополнительное пространство — только внешнее matte/decor.
 
-На реальном viewport используется FIT/contain с центрированием. Ультраширокие и нестандартные экраны не расширяют игровую область: лишнее пространство является внешним matte/decor. Производственный порядок: technical frame → wireframe → layout approval → background composition → clean background → integration preview. Текущие Chapter 1 backgrounds остаются REVIEW/TEST до прохождения этой проверки.
+Обязательный производственный порядок:
+1. technical frame;
+2. safe zones;
+3. wireframe;
+4. layout approval;
+5. background composition draft;
+6. clean background;
+7. integration preview с layout overlay;
+8. cross-device verification;
+9. только после этого следующий экран.
+
+Дополнительные правила:
+- сначала готовятся **4 wireframe-экрана**: Map 16:9, Map 9:16, Gameplay 16:9, Gameplay 9:16;
+- portrait — самостоятельная композиция, а не crop landscape;
+- текущие Chapter 1 backgrounds заморожены как **TEST / REVIEW** и используются только как референс/сравнение;
+- новые production backgrounds и screen-dependent decor не производятся до утверждения wireframe соответствующего экрана;
+- Batch A/B/C сохраняют APPROVED-статус по визуальному направлению, но их размещение и масштаб в сцене подчиняются утверждённым safe zones;
+- после утверждения четырёх wireframes первый новый background-pass выполняется для **Gameplay 16:9**, затем остальные экраны проходят тот же цикл;
+- operational source: `docs/LAYOUT_WORKFLOW.md`.
 
 ### NAME-CHECK-EN-001 — Английское название
 **Статус:** NEEDS FINAL CLEARANCE  
@@ -391,8 +399,8 @@ UI: premium jade + gold + light ivory, без декоративного пер�
 - Заблокировано: нет.
 - Отложено: точные численные балансы экономики, рекламные caps, IAP/полноценный магазин, post-60 стратегия, финальный EN name clearance.
 - Следующий этап: Этап 6 — **НЕ ЗАПУЩЕН**.
-- Главные решения: DEC-001…DEC-019 + NAME-CHECK-EN-001.
-- Главные риски: RISK-001…RISK-014.
+- Главные решения: DEC-001…DEC-039 + NAME-CHECK-EN-001.
+- Главные риски: RISK-001…RISK-019.
 
 ## 13. ЭТАП 2 — РЕЗУЛЬТАТ ИССЛЕДОВАНИЯ
 
@@ -645,29 +653,30 @@ IAP, полноценный магазин, daily systems, коллекции, s
 **Статус Этапа 5: ГОТОВО К ПРОВЕРКЕ.**  
 **Этап 6: НЕ ЗАПУЩЕН.**
 
-## 17. PRODUCTION SPEC АССЕТОВ
+## 17. PRODUCTION / LAYOUT STATUS
 
 Созданы и подключены:
-- `docs/ASSET_PRODUCTION_SPEC.md` — полный реестр, filenames, размеры, форматы, alpha, atlas-группы, порядок отрисовки;
-- `docs/ATLAS_STRUCTURE.md` — правила texture atlas, loading/unloading и chapter split;
-- `assets/manifests/asset_manifest.csv` — табличный production manifest;
+- `docs/LAYOUT_WORKFLOW.md` — главный operational-регламент компоновки экранов;
+- `docs/ASSET_PRODUCTION_SPEC.md` — реестр и правила производства ассетов;
+- `docs/ATLAS_STRUCTURE.md` — структура texture atlas и loading/unloading;
+- `assets/manifests/asset_manifest.csv` — production manifest;
 - `assets/manifests/atlas_manifest.json` — machine-readable atlas plan;
-- `assets/README.md` — правила структуры ассетов.
+- `assets/README.md` — правила хранения и runtime-структуры.
 
-Ключевые решения:
-- 24 tile symbols;
-- 1 geometry + 3 chapter tile bases;
-- modular map layers instead of 60 screenshots;
-- chapter-specific lazy-loaded atlases;
-- large backgrounds separate;
-- static asset pass before FX pass.
+Утверждённые визуальные пакеты не откатываются:
+- **Batch A — Tile kit:** APPROVED;
+- **Batch B — Core UI:** APPROVED;
+- **Batch C — Map common:** APPROVED.
 
-**Текущий производственный batch:** Batch D — Chapter 1 / Сад Безмятежности.  
-**Batch A — Tile kit:** APPROVED по визуалу (3 chapter bases + 24 symbols).  
-**Batch B — Core UI:** APPROVED по визуалу.  
-**Batch C — Карта Пути / map_common:** APPROVED по визуалу.  
-**Этап проекта остаётся 5 — Формирование MVP / ГОТОВО К ПРОВЕРКЕ.**  
-Этап 6 не запущен.
+Текущий производственный режим:
+- **LAYOUT RESET / WIREFRAME-FIRST**;
+- **Batch D / environment art: PAUSED** до layout approval;
+- текущие 4 Chapter 1 backgrounds: **TEST / REVIEW**, не production-approved;
+- код уже использует fixed design frame 1920×1080 / 1080×1920 и Phaser FIT;
+- wireframe является режимом проверки по умолчанию, старый арт используется только как review/reference;
+- ближайшая работа: довести и визуально утвердить 4 wireframe-экрана, после чего начать первый новый art-pass с Gameplay 16:9.
+
+Этап проекта формально остаётся **5 — Формирование MVP / ГОТОВО К ПРОВЕРКЕ**. Этап 6 не запущен.
 
 ## 18. ИСТОРИЯ ИЗМЕНЕНИЙ
 
@@ -888,3 +897,12 @@ IAP, полноценный магазин, daily systems, коллекции, s
 - Добавлен видимый boot-error fallback вместо немого чёрного экрана при будущей критической ошибке запуска.
 - Cache/version query поднят до `v=20260929-6`.
 - Фоновые ассеты не менялись; исправление относится только к запуску приложения.
+
+
+### v0.23
+- 2026-10-01 пользователь повторно подтвердил переход на fixed-design-frame / wireframe-first workflow.
+- Удалено дублирование DEC-039; решение сведено в одну authoritative запись.
+- Старый art-first порядок Batch D признан REPLACED как производственный процесс; сами созданные фоны не удаляются и остаются TEST / REVIEW референсами.
+- Production focus перенесён с фоновой графики на 4 wireframe-экрана и safe-zone approval.
+- `docs/LAYOUT_WORKFLOW.md`, `docs/ASSET_PRODUCTION_SPEC.md`, `docs/ATLAS_STRUCTURE.md` и `assets/README.md` синхронизированы с новым порядком.
+- Первый новый background-pass после layout approval: Gameplay 16:9.
