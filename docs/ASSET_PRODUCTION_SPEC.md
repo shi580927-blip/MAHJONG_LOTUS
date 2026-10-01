@@ -1,8 +1,8 @@
 # ASSET PRODUCTION SPEC — Маджонг: Путь Лотоса
 
-**Статус:** WORKING PRODUCTION SPEC / BATCH A APPROVED  
+**Статус:** WORKING PRODUCTION SPEC / BATCH A–C APPROVED / ENVIRONMENT ART PAUSED  
 **Назначение:** единый реестр графических ассетов для художника и разработки.  
-**Порядок:** сначала статические/модульные ассеты → затем отдельный FX-пакет.  
+**Порядок:** screen-independent approved assets сохраняются; screen-dependent background/decor создаются только после fixed frame → safe zones → wireframe → layout approval. FX остаётся отдельным последующим pass.  
 **Важно:** 60 уровней не равны 60 изображениям. Геометрия уровней хранится как данные/JSON.
 
 ---
@@ -23,6 +23,10 @@
 9. Основные прозрачные ассеты — PNG; большие непрозрачные фоны — WebP/PNG по необходимости.
 10. Малые спрайты группируются в texture atlas.
 11. FX не рисуются вместе с основным asset pass. Для FX будет отдельный реестр после завершения статических ассетов.
+12. Для экранов существуют только два design frame: 1920×1080 и 1080×1920.
+13. Portrait — самостоятельная композиция; автоматический crop landscape не считается production-решением.
+14. Текущие Chapter 1 backgrounds имеют статус TEST / REVIEW и не задают геометрию.
+15. Новые backgrounds и screen-dependent decor запрещено переводить в production до layout approval соответствующего экрана.
 
 ---
 
@@ -230,15 +234,34 @@ Runtime: ориентир 144–176 px.
 
 # 8. CHAPTER 1 — САД БЕЗМЯТЕЖНОСТИ
 
-## 8.1. Background
+## 8.1. Background / screen compositions
 
-| ID | Файл | Тип | Runtime | Хранение |
-|---|---|---|---|---|
-| CH1-BG-01 | ch1_bg_far.webp | Дальний фон | 1920×1080 target | separate |
-| CH1-BG-02 | ch1_bg_water.webp | Вода/средний план | 1920×1080 target | separate |
-| CH1-BG-03 | ch1_fg_soft.png | Передний план | 1920×1080 target | separate |
+Production background не проектируется до утверждения wireframe соответствующего экрана.
 
-Portrait не рисуется как полностью отдельный мир. На Этапе 6 определяется кадрирование; если композиция не выдерживает portrait, допускается отдельный crop/export из того же master.
+Целевые design frames:
+- Map landscape — 1920×1080;
+- Map portrait — 1080×1920;
+- Gameplay landscape — 1920×1080;
+- Gameplay portrait — 1080×1920.
+
+Canonical runtime names после утверждения композиции:
+| ID | Файл | Экран | Runtime | Статус |
+|---|---|---|---:|---|
+| CH1-MAP-BG-L | ch1_map_bg_16x9.webp | Map landscape | 1920×1080 | TEST / REVIEW |
+| CH1-MAP-BG-P | ch1_map_bg_9x16.webp | Map portrait | 1080×1920 | TEST / REVIEW |
+| CH1-LVL-BG-L | ch1_level_bg_16x9.webp | Gameplay landscape | 1920×1080 | TEST / REVIEW |
+| CH1-LVL-BG-P | ch1_level_bg_9x16.webp | Gameplay portrait | 1080×1920 | TEST / REVIEW |
+
+Текущие четыре файла сохраняются как reference/test и не считаются финальным Batch D.
+
+После layout approval фон проходит три шага:
+1. composition draft;
+2. clean background;
+3. integration preview с overlay.
+
+Если для живого окружения нужен parallax, approved composition можно разложить на far/mid/foreground и отдельные ambient sprites. Слои не должны менять утверждённую композицию и safe zones.
+
+Portrait создаётся как отдельная композиция в 1080×1920, а не как crop landscape.
 
 ## 8.2. Modular objects
 
@@ -266,6 +289,8 @@ Portrait не рисуется как полностью отдельный ми
 ---
 
 # 9. CHAPTER 2 — САД ЦВЕТУЩЕЙ САКУРЫ
+
+**Environment art gate:** PENDING. Не производить финальные backgrounds/decor до layout approval соответствующих Map/Gameplay экранов.
 
 ## Background
 - ch2_bg_far.webp
@@ -295,6 +320,8 @@ Milestones:
 ---
 
 # 10. CHAPTER 3 — ХРАМ ЛОТОСА
+
+**Environment art gate:** PENDING. Не производить финальные backgrounds/decor до layout approval соответствующих Map/Gameplay экранов.
 
 ## Background
 - ch3_bg_mountains.webp
@@ -386,8 +413,11 @@ Milestones:
 Для production manifest используются статусы:
 - PLANNED
 - DRAWING
+- TEST
 - REVIEW
 - APPROVED
+- PAUSED
+- REPLACED
 - EXPORTED
 - IN_ATLAS
 - IN_GAME
@@ -396,45 +426,41 @@ Milestones:
 
 ---
 
-# 15. ПОРЯДОК ОТРИСОВКИ
+# 15. ПОРЯДОК ПРОИЗВОДСТВА
 
-## Batch A — Tile kit
-1. 3 tile bases.
-2. 24 symbols.
-3. shadow / selection / hint / blocked helpers.
+## Уже утверждено
+### Batch A — Tile kit
+- APPROVED.
 
-## Batch B — Core UI
-4. currency/HUD.
-5. buttons.
-6. settings icons.
-7. popup frames.
-8. 3 boosters.
+### Batch B — Core UI
+- APPROVED.
 
-## Batch C — Map common
-9. level nodes.
-10. path segments.
-11. common map controls.
+### Batch C — Map common
+- APPROVED.
 
-## Batch D — Chapter 1
-12. background layers.
-13. modular objects.
-14. milestone reveal set.
+## Новый обязательный gate перед environment art
+### Layout Pass
+1. Map 16:9 wireframe.
+2. Map 9:16 wireframe.
+3. Gameplay 16:9 wireframe.
+4. Gameplay 9:16 wireframe.
+5. Layout approval.
 
-## Batch E — Chapter 2
-15. background layers.
-16. modular objects.
-17. milestone reveal set.
+До закрытия этого gate **Batch D/E/F не производятся как финальный арт**.
 
-## Batch F — Chapter 3
-18. background layers.
-19. modular objects.
-20. milestone reveal set.
+## После layout approval
+### First art vertical slice
+- Gameplay 16:9: composition draft → clean background → integration preview → approval.
 
-## Batch G — Ambient source sprites
-21. petals/leaves/glints/mist source images.
+### Затем screen-by-screen
+- остальные approved Map/Gameplay layouts;
+- Chapter 1 modular environment;
+- Chapter 2 environment;
+- Chapter 3 environment;
+- ambient source sprites.
 
-## Batch H — FX
-Только после утверждения всех предыдущих batch:
+### FX
+Только отдельным последующим pass:
 - selection;
 - match;
 - hint;
@@ -446,8 +472,6 @@ Milestones:
 - shimmer;
 - mist movement;
 - ambient sparkle.
-
----
 
 # 16. КРИТЕРИЙ ГОТОВНОСТИ АССЕТА
 
@@ -484,7 +508,7 @@ Milestones:
 Утверждены:
 - HUD монет;
 - HUD лепестков;
-- панель уровня: только крупное число;
+- панель уровня: слово «Уровень» + крупный номер;
 - pause/back/close/settings controls;
 - music/sound/language/toggles;
 - универсальные popup frames;
@@ -516,73 +540,20 @@ Milestones:
 - один map_common набор используется для landscape 16:9 и portrait 9:16;
 - длинная сторона целевого экрана — не более 1920 px.
 
-Следующий production batch: **Batch D — Chapter 1 / Сад Безмятежности** после экспорта и упаковки map_common.
+Следующий шаг: **Layout Pass — 4 wireframe-экрана**. Batch D environment art заморожен до layout approval.
 
 
-# 20. BATCH D — ТЕКУЩАЯ ИНТЕГРАЦИЯ
+# 20. ENVIRONMENT / BACKGROUND GATE
 
-**Статус:** TEST / на проверку, не APPROVED.
+**Статус:** PAUSED / TEST. Art-first Batch D заменён wireframe-first workflow.
 
-Для немедленной проверки карты в Phaser подключён временный единый master:
-- `ch1_bg_master.webp`;
-- 1920×1080;
-- непрозрачный WebP;
-- используется только как тестовый фон Chapter 1.
-
-Он **не заменяет** финальные production-ассеты Batch D:
-- `ch1_bg_far.webp`;
-- `ch1_bg_water.webp`;
-- `ch1_fg_soft.png`.
-
-До визуальной проверки рабочей MapScene новые наборы декоративных map/UI ассетов не производятся. После проверки текущий master либо принимается как основа для разделения на три слоя, либо корректируется один раз целиком.
-
-
-## 20.1. Production background folders
-
-По последнему утверждённому направлению фоны Chapter 1 разделяются по назначению и ориентации.
-
-### Source / candidates
-```text
-assets/source/chapters/ch1/backgrounds/
-  map/
-    landscape/
-    portrait/
-  gameplay/
-    landscape/
-    portrait/
-```
-
-Сюда помещаются исходные PNG/WebP, варианты генерации и выбранные master-файлы до runtime-оптимизации.
-
-### Runtime
-```text
-assets/runtime/backgrounds/ch1/
-  map/
-    ch1_map_bg_16x9.webp
-    ch1_map_bg_9x16.webp
-  gameplay/
-    ch1_level_bg_16x9.webp
-    ch1_level_bg_9x16.webp
-```
-
-Требования:
-- 16:9 — 1920×1080;
-- 9:16 — 1080×1920;
-- карта: разрешены каменные дорожки, мостики, лестницы и террасы окружения, но без программных нод/золотой дорожки/UI;
-- gameplay: центр спокойнее и чище под раскладку Mahjong;
-- текст, логотипы, кнопки и игровая графика в фон не вшиваются;
-- существующий `ch1_bg_master.webp` остаётся TEST и не считается финальным фоном.
-
-Если после визуальной проверки потребуется parallax/ambient-разделение, производные слои `far/water/foreground` создаются из утверждённого master, а не вместо master-фонов.
-
-
-### Canonical Chapter 1 background files
+Текущие Chapter 1 backgrounds уже лежат в репозитории, но все четыре являются только reference/test:
 
 **Source masters / REVIEW**
-- `assets/source/chapters/ch1/backgrounds/map/landscape/ch1_map_master_16x9.webp` — 1920×1080;
-- `assets/source/chapters/ch1/backgrounds/map/portrait/ch1_map_master_9x16.webp` — 1080×1920;
-- `assets/source/chapters/ch1/backgrounds/gameplay/landscape/ch1_level_master_16x9.webp` — 1920×1080;
-- `assets/source/chapters/ch1/backgrounds/gameplay/portrait/ch1_level_master_9x16.webp` — 1080×1920.
+- `assets/source/chapters/ch1/backgrounds/map/landscape/ch1_map_master_16x9.webp`;
+- `assets/source/chapters/ch1/backgrounds/map/portrait/ch1_map_master_9x16.webp`;
+- `assets/source/chapters/ch1/backgrounds/gameplay/landscape/ch1_level_master_16x9.webp`;
+- `assets/source/chapters/ch1/backgrounds/gameplay/portrait/ch1_level_master_9x16.webp`.
 
 **Runtime / REVIEW**
 - `assets/runtime/backgrounds/ch1/map/ch1_map_bg_16x9.webp`;
@@ -590,4 +561,15 @@ assets/runtime/backgrounds/ch1/
 - `assets/runtime/backgrounds/ch1/gameplay/ch1_level_bg_16x9.webp`;
 - `assets/runtime/backgrounds/ch1/gameplay/ch1_level_bg_9x16.webp`.
 
-Исходные masters хранятся с повышенным качеством; runtime-копии оптимизированы по весу. Старый единый `ch1_bg_master.webp` удалён как REPLACED.
+Правила:
+- эти файлы не APPROVED и не определяют safe zones;
+- старый единый `ch1_bg_master.webp` удалён как REPLACED;
+- не создавать новый финальный фон «на глаз»;
+- не растягивать/тайлить фон, чтобы расширять gameplay за design frame;
+- portrait не получать автоматическим crop из landscape;
+- для каждого экрана сначала wireframe/layout approval, затем composition draft;
+- background не содержит UI, текста, нод и программной золотой дорожки;
+- modular objects и ambient layers добавляются только так, чтобы не ломать approved overlay;
+- если approved композиция требует parallax, она раскладывается на слои после утверждения, а не используется как причина менять layout.
+
+Operational layout rules: `docs/LAYOUT_WORKFLOW.md`.
