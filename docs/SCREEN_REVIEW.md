@@ -47,3 +47,6 @@ not approval of layouts, production backgrounds, economy, or Stage 5.
 and covered-tile rejection. JS syntax checks pass.
 
 Visual browser verification is PENDING. Local Chromium installation failed (incomplete download); agent-browser CLI is unavailable. The build is saved on a review branch because automatic approval review rejected the direct main push. No Pages deployment is claimed.
+
+## Publication follow-up
+2026-10-05: user authorized main merge; PR #1 merged. Pages run 37336155399 succeeded. Cloud browser confirmed matching, hint, shuffle, one-pair Blessing, settings, return to map, and forced portrait/landscape layouts. Fixed the Canvas background fill and footer contrast found in that pass. Physical mobile/resize and full release gates remain pending.

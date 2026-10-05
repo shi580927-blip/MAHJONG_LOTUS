@@ -57,7 +57,7 @@ export class ScreenReviewScene extends Phaser.Scene {
   }
   background() {
     const g = this.add.graphics();
-    g.fillGradientStyle(0xf6f1e4, 0xe9eee2, 0xd8e7dc, 0xeff0e3, 1).fillRect(0, 0, this.w, this.h);
+    g.fillStyle(0xeeeede, 1).fillRect(0, 0, this.w, this.h);
     const key = `${this.mode === 'map' ? 'map' : 'gameplay'}-${this.p ? '9x16' : '16x9'}`;
     if (this.art && this.textures.exists(key)) {
       this.add.image(this.w/2, this.h/2, key).setDisplaySize(this.w, this.h);
@@ -182,6 +182,7 @@ export class ScreenReviewScene extends Phaser.Scene {
       const x=this.w/2+(i-1)*spacing;
       button(this,x,by2,this.p?280:300,this.p?112:88,`${['◇','↻','✿'][i]}  ${name}`,()=>this.boost(i),i===2,this.p?25:26);
     });
+    panel(this,this.w/2,this.p?1820:1043,this.p?940:1140,48,C.ivory,.98,16);
     text(this,this.w/2,this.p?1820:1043,this.notice||'Свободная плитка открыта сверху и хотя бы с одной стороны',this.p?23:22,C.muted);
     if(!left) this.victory();
   }
