@@ -50,3 +50,7 @@ Visual browser verification is PENDING. Local Chromium installation failed (inco
 
 ## Publication follow-up
 2026-10-05: user authorized main merge; PR #1 merged. Pages run 37336155399 succeeded. Cloud browser confirmed matching, hint, shuffle, one-pair Blessing, settings, return to map, and forced portrait/landscape layouts. Fixed the Canvas background fill and footer contrast found in that pass. Physical mobile/resize and full release gates remain pending.
+
+## Visual Path editor
+
+2026-10-05: added a TEST visual editor for manual Path-node placement. Routes: `?screen=map&edit=1&art=1&frame=landscape` and `&frame=portrait`. Node coordinates are stored separately per design frame in localStorage and can be downloaded as `lotus-path-layout.json`. The tool does not auto-promote edited coordinates to production data.

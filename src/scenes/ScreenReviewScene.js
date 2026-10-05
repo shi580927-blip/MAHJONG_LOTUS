@@ -6,7 +6,9 @@ const SYMBOLS = ['一', '二', '三', '竹', '中', '白', '✿', '❖', '◉', 
 export class ScreenReviewScene extends Phaser.Scene {
   constructor() { super('ScreenReviewScene'); }
   preload() {
-    this.art = new URLSearchParams(location.search).get('art') === '1';
+    const params = new URLSearchParams(location.search);
+    this.editMode = params.get('edit') === '1';
+    this.art = params.get('art') === '1' || this.editMode;
     this.load.atlas('review-map', 'assets/runtime/atlases/map_common/map_common.webp', 'assets/runtime/atlases/map_common/map_common.json');
     if (this.art) {
       for (const mode of ['map', 'gameplay']) for (const ratio of ['16x9', '9x16']) {
@@ -22,8 +24,11 @@ export class ScreenReviewScene extends Phaser.Scene {
     } catch { /* Storage may be unavailable. The review remains playable. */ }
     this.current = Math.min(60, Math.max(0, ...this.state.completed) + 1);
     this.level = this.current;
-    this.guides = new URLSearchParams(location.search).get('debug') === '1';
-    this.mode = ['menu', 'map', 'game'].includes(new URLSearchParams(location.search).get('screen')) ? new URLSearchParams(location.search).get('screen') : 'menu';
+    const params = new URLSearchParams(location.search);
+    this.guides = params.get('debug') === '1';
+    this.editMode = params.get('edit') === '1';
+    this.mode = this.editMode ? 'map' : (['menu', 'map', 'game'].includes(params.get('screen')) ? params.get('screen') : 'menu');
+    this.editorNotice = 'Перетаскивайте ноды. Путь перестраивается автоматически.';
     this.draw();
     this.resizeHandler = () => this.draw();
     this.scale.on('resize', this.resizeHandler);
@@ -95,6 +100,116 @@ export class ScreenReviewScene extends Phaser.Scene {
     button(this, cx, cy+280, 570, 86, 'Настройки', () => this.settings());
     text(this, cx, this.h-110, 'Без спешки · Без жизней · В своём ритме', this.p ? 28 : 25, C.muted);
   }
+  defaultMapPoints() {
+    const step = this.p ? 225 : 275;
+    const bottom = this.p ? 1640 : 900;
+    return Array.from({ length: 60 }, (_, i) => this.p
+      ? { x: 540 + Math.sin(i*.95)*245, y: bottom-140-i*step }
+      : { x: 260+i*step, y: 530+Math.sin(i*.95)*200 });
+  }
+  editorFrameKey() { return this.p ? 'portrait' : 'landscape'; }
+  readEditorStore() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem('lotus.path-editor.v1'));
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch { return {}; }
+  }
+  editorPoints() {
+    const fallback = this.defaultMapPoints();
+    const saved = this.readEditorStore()[this.editorFrameKey()];
+    if (!Array.isArray(saved) || saved.length !== 60) return fallback;
+    const valid = saved.every(p => p && Number.isFinite(Number(p.x)) && Number.isFinite(Number(p.y)));
+    return valid ? saved.map(p => ({ x: Number(p.x), y: Number(p.y) })) : fallback;
+  }
+  saveEditorPoints() {
+    if (!this.mapPoints?.length) return;
+    const store = this.readEditorStore();
+    store[this.editorFrameKey()] = this.mapPoints.map(p => ({ x: Math.round(p.x), y: Math.round(p.y) }));
+    store.updatedAt = new Date().toISOString();
+    try {
+      localStorage.setItem('lotus.path-editor.v1', JSON.stringify(store));
+      this.editorNotice = 'Сохранено в этом браузере';
+    } catch {
+      this.editorNotice = 'Не удалось сохранить: localStorage недоступен';
+    }
+  }
+  resetEditorPoints() {
+    const store = this.readEditorStore();
+    delete store[this.editorFrameKey()];
+    try { localStorage.setItem('lotus.path-editor.v1', JSON.stringify(store)); } catch {}
+    this.offset = undefined;
+    this.editorNotice = 'Расстановка этого формата сброшена';
+    this.draw();
+  }
+  editorPayload() {
+    this.saveEditorPoints();
+    const store = this.readEditorStore();
+    const normalize = (items) => Array.isArray(items) && items.length === 60
+      ? items.map((p, i) => ({ level: i+1, x: Math.round(Number(p.x)), y: Math.round(Number(p.y)) }))
+      : null;
+    return {
+      schema: 'mahjong-lotus-path-layout/v1',
+      status: 'TEST',
+      designFrames: { landscape: [1920,1080], portrait: [1080,1920] },
+      landscape: normalize(store.landscape),
+      portrait: normalize(store.portrait),
+      updatedAt: store.updatedAt || new Date().toISOString()
+    };
+  }
+  downloadEditorJSON() {
+    const payload = JSON.stringify(this.editorPayload(), null, 2);
+    const blob = new Blob([payload], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'lotus-path-layout.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    this.editorNotice = 'JSON скачан';
+    this.draw();
+  }
+  switchEditorFrame() {
+    this.saveEditorPoints();
+    const q = new URLSearchParams(location.search);
+    q.set('screen', 'map');
+    q.set('edit', '1');
+    q.set('art', '1');
+    q.set('frame', this.p ? 'landscape' : 'portrait');
+    location.search = q.toString();
+  }
+  leaveEditor() {
+    this.saveEditorPoints();
+    const q = new URLSearchParams(location.search);
+    q.set('screen', 'map');
+    q.set('art', '1');
+    q.set('frame', this.p ? 'portrait' : 'landscape');
+    q.delete('edit');
+    q.delete('debug');
+    location.search = q.toString();
+  }
+  editorBar() {
+    if (this.p) {
+      panel(this, 540, 1790, 1016, 250, C.ivory, .98, 26);
+      text(this, 540, 1695, 'РЕДАКТОР ПУТИ · 9:16', 22, C.ink, true);
+      text(this, 540, 1730, this.editorNotice, 18, C.muted);
+      button(this, 280, 1790, 430, 76, 'Сохранить', () => { this.saveEditorPoints(); this.draw(); }, true, 23);
+      button(this, 800, 1790, 430, 76, 'Скачать JSON', () => this.downloadEditorJSON(), false, 23);
+      button(this, 205, 1880, 250, 68, '16:9', () => this.switchEditorFrame(), false, 22);
+      button(this, 540, 1880, 300, 68, 'Сбросить', () => this.resetEditorPoints(), false, 22);
+      button(this, 875, 1880, 250, 68, 'Готово', () => this.leaveEditor(), true, 22);
+    } else {
+      panel(this, this.w/2, 1000, this.w-64, 132, C.ivory, .98, 24);
+      text(this, 225, 974, 'РЕДАКТОР ПУТИ · 16:9', 20, C.ink, true);
+      text(this, 225, 1012, this.editorNotice, 16, C.muted);
+      button(this, 640, 1000, 245, 78, 'Сохранить', () => { this.saveEditorPoints(); this.draw(); }, true, 22);
+      button(this, 915, 1000, 245, 78, 'Скачать JSON', () => this.downloadEditorJSON(), false, 22);
+      button(this, 1190, 1000, 210, 78, '9:16', () => this.switchEditorFrame(), false, 22);
+      button(this, 1435, 1000, 230, 78, 'Сбросить', () => this.resetEditorPoints(), false, 22);
+      button(this, 1690, 1000, 210, 78, 'Готово', () => this.leaveEditor(), true, 22);
+    }
+  }
   map() {
     this.level = this.current;
     const top = this.p ? 250 : 180, bottom = this.p ? 1640 : 900;
@@ -108,16 +223,20 @@ export class ScreenReviewScene extends Phaser.Scene {
     
     this.mapMaskShape?.destroy(); this.mapMaskShape = maskShape;
     this.pathContainer = this.add.container().setMask(maskShape.createGeometryMask());
-    const points = Array.from({ length: 60 }, (_, i) => this.p
-      ? { x: 540 + Math.sin(i*.95)*245, y: bottom-140-i*step }
-      : { x: 260+i*step, y: 530+Math.sin(i*.95)*200 });
+    const points = this.editMode ? this.editorPoints() : this.defaultMapPoints();
+    this.mapPoints = points;
     const g = this.add.graphics(); this.pathContainer.add(g);
-    for (let i=0; i<59; i++) {
-      const a=points[i], b=points[i+1];
-      g.lineStyle(5, C.gold, i<this.current-1 ? .8 : .25);
-      g.lineBetween(a.x, a.y, b.x, b.y);
-      for(let k=1;k<6;k++) { g.fillStyle(C.gold, .65).fillCircle(Phaser.Math.Linear(a.x,b.x,k/6),Phaser.Math.Linear(a.y,b.y,k/6),4); }
-    }
+    const redrawPath = () => {
+      g.clear();
+      for (let i=0; i<59; i++) {
+        const a=points[i], b=points[i+1];
+        g.lineStyle(5, C.gold, i<this.current-1 ? .8 : .25);
+        g.lineBetween(a.x, a.y, b.x, b.y);
+        for(let k=1;k<6;k++) g.fillStyle(C.gold, .65).fillCircle(Phaser.Math.Linear(a.x,b.x,k/6),Phaser.Math.Linear(a.y,b.y,k/6),4);
+      }
+    };
+    this.redrawPath = redrawPath;
+    redrawPath();
     this.mapNodes = [];
     points.forEach((point, index) => {
       const n = index+1, complete = this.state.completed.includes(n), locked = n > this.current;
@@ -127,22 +246,68 @@ export class ScreenReviewScene extends Phaser.Scene {
         : this.add.circle(point.x,point.y,65,locked ? 0x82948b : C.jade);
       this.pathContainer.add(node);
       const number=text(this,point.x,point.y+42,String(n),29,'#fff6d5'); this.pathContainer.add(number);
-      const hit = this.add.zone(point.x,point.y,180,180).setInteractive({useHandCursor:!locked}); this.pathContainer.add(hit);
-      this.mapNodes.push({ n, hit, point });
-      hit.on('pointerup', pointer => {
-        if(this.modal || locked || this.dragDistance>12 || pointer.y<top || pointer.y>bottom || (!this.p && (pointer.x<120 || pointer.x>1800))) return;
-        this.level=n; this.newBoard(); this.go('game');
-      });
-      if(n===this.current) this.pathContainer.add(text(this,point.x,point.y-105,'ВЫ ЗДЕСЬ',20,C.ink));
-      if(n%5===0) this.pathContainer.add(text(this,point.x,point.y+112,n%20===0?'Врата главы':'Пробуждение',19,C.muted));
+      const hit = this.add.zone(point.x,point.y,180,180).setInteractive({useHandCursor:this.editMode || !locked}); this.pathContainer.add(hit);
+      const currentTag = n===this.current ? text(this,point.x,point.y-105,'ВЫ ЗДЕСЬ',20,C.ink) : null;
+      const milestoneTag = n%5===0 ? text(this,point.x,point.y+112,n%20===0?'Врата главы':'Пробуждение',19,C.muted) : null;
+      if(currentTag) this.pathContainer.add(currentTag);
+      if(milestoneTag) this.pathContainer.add(milestoneTag);
+      const entry = { n, hit, point, node, number, currentTag, milestoneTag };
+      entry.position = () => {
+        node.setPosition(point.x, point.y);
+        number.setPosition(point.x, point.y+42);
+        hit.setPosition(point.x, point.y);
+        currentTag?.setPosition(point.x, point.y-105);
+        milestoneTag?.setPosition(point.x, point.y+112);
+      };
+      this.mapNodes.push(entry);
+      if (this.editMode) {
+        hit.on('pointerdown', (_pointer, _localX, _localY, event) => {
+          event?.stopPropagation?.();
+          if (this.modal) return;
+          this.editorDrag = entry;
+          this.drag = null;
+          this.dragDistance = 0;
+          this.editorNotice = `Двигаем уровень ${n}`;
+        });
+      } else {
+        hit.on('pointerup', pointer => {
+          if(this.modal || locked || this.dragDistance>12 || pointer.y<top || pointer.y>bottom || (!this.p && (pointer.x<120 || pointer.x>1800))) return;
+          this.level=n; this.newBoard(); this.go('game');
+        });
+      }
     });
     const move=()=> { this.offset=Phaser.Math.Clamp(this.offset,0,this.mapMax); this.pathContainer.setPosition(this.p?0:-this.offset,this.p?this.offset:0); };
     move(); this.dragDistance=0;
-    this.input.on('pointerdown', p => { if(!this.modal && p.y>top && p.y<bottom) { this.drag={x:p.x,y:p.y,offset:this.offset};this.dragDistance=0; } });
-    this.input.on('pointermove', p => { if(!p.isDown || !this.drag || this.modal) return; const d=this.p?p.y-this.drag.y:this.drag.x-p.x;this.dragDistance=Math.max(this.dragDistance,Math.abs(d));this.offset=this.drag.offset+d;move(); });
-    this.input.on('pointerup',()=>{this.drag=null;});
+    this.input.on('pointerdown', p => {
+      if(this.editorDrag) return;
+      if(!this.modal && p.y>top && p.y<bottom) { this.drag={x:p.x,y:p.y,offset:this.offset};this.dragDistance=0; }
+    });
+    this.input.on('pointermove', p => {
+      if (this.editorDrag && p.isDown && !this.modal) {
+        const entry = this.editorDrag;
+        entry.point.x = Math.round(this.p ? Phaser.Math.Clamp(p.x, 130, 950) : p.x + this.offset);
+        entry.point.y = Math.round(this.p ? p.y - this.offset : Phaser.Math.Clamp(p.y, 230, 850));
+        entry.position();
+        redrawPath();
+        this.editorNotice = `Уровень ${entry.n}: x ${entry.point.x}, y ${entry.point.y}`;
+        return;
+      }
+      if(!p.isDown || !this.drag || this.modal) return;
+      const d=this.p?p.y-this.drag.y:this.drag.x-p.x;
+      this.dragDistance=Math.max(this.dragDistance,Math.abs(d));
+      this.offset=this.drag.offset+d;
+      move();
+    });
+    this.input.on('pointerup',()=>{
+      if (this.editorDrag) {
+        this.saveEditorPoints();
+        this.editorDrag = null;
+      }
+      this.drag=null;
+    });
     this.input.on('wheel',(_p,_o,dx,dy)=>{if(this.modal)return;this.offset+=(this.p?dy:(Math.abs(dx)>Math.abs(dy)?dx:dy))*.9;move();});
     this.hud('Глава '+(Math.floor((this.current-1)/20)+1),this.p?'Путь Лотоса':CHAPTERS[Math.floor((this.current-1)/20)]);
+    if (this.editMode) { this.editorBar(); return; }
     const by=this.p?1785:997;
     panel(this,this.w/2,by,this.w-64,this.p?200:128,C.ivory,.97);
     text(this,this.p?270:400,by-25,'ВАШ ПУТЬ',20,C.muted);
