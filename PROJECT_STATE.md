@@ -931,3 +931,9 @@ IAP, полноценный магазин, daily systems, коллекции, s
 - Просмотрены landscape и forced portrait gameplay/map. Это не заменяет физический mobile/cross-device gate.
 - Исправлены обнаруженные проблемы: фон схемы теперь использует совместимую плоскую ivory-заливку вместо Canvas-несовместимого gradient; подпись под бустерами получила светлую подложку.
 - Cache version 20261005-2. Статус оформления по-прежнему TEST, финальные Batch A/B и production backgrounds не утверждались.
+
+
+## OPERATIONAL UPDATE 2026-10-05 — VISUAL PATH EDITOR
+
+**Статус:** TEST / на проверку.  
+Добавлен внутренний визуальный редактор ручной расстановки 60 нод Пути поверх review-карты, отдельно для landscape 1920×1080 и portrait 1080×1920. Расстановка хранится локально в браузере и экспортируется в JSON; сама по себе не считается APPROVED и не заменяет production map data. Инструкция: `docs/PATH_VISUAL_EDITOR.md`. Production-решения DEC-038 и DEC-039 не меняются.
