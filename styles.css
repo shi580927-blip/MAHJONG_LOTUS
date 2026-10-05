@@ -26,3 +26,6 @@ canvas {
   margin: auto;
   box-shadow: 0 0 0 1px rgba(18, 57, 49, 0.18), 0 18px 60px rgba(35, 45, 41, 0.18);
 }
+
+#review-label { position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 10; padding: 3px 12px; background: #082d27e8; color: #e7dac0; font: 10px Arial,sans-serif; white-space: nowrap; border-radius: 0 0 8px 8px; }
+#review-label a {color:#f2d799;text-decoration:underline;}
