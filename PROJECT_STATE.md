@@ -906,3 +906,20 @@ IAP, полноценный магазин, daily systems, коллекции, s
 - Production focus перенесён с фоновой графики на 4 wireframe-экрана и safe-zone approval.
 - `docs/LAYOUT_WORKFLOW.md`, `docs/ASSET_PRODUCTION_SPEC.md`, `docs/ATLAS_STRUCTURE.md` и `assets/README.md` синхронизированы с новым порядком.
 - Первый новый background-pass после layout approval: Gameplay 16:9.
+
+
+### v0.24 — 2026-10-05 · Interactive screen review
+- По запросу пользователя собраны пять связанных экранов: меню, карта, игровой экран, победа, настройки.
+- Статус **TEST / на проверку**. DEC-039 и необходимость визуального layout approval сохраняются; формальные этапы не утверждаются автоматически.
+- Новый default entry — ScreenReviewScene. Legacy MapScene/GameScene доступны через `?legacy=1`.
+- Сохранены fixed design frames и FIT; добавлены принудительные review-frame режимы и overlay.
+- Карта: portrait снизу вверх, landscape слева направо, masked path, fixed HUD, разделение drag/tap.
+- Игровой экран: 24 тестовые плитки, рабочие пары/подсказка/перемешивание/одноразовое действие Благословения, no-moves и победа.
+- Все 60 нод используют одну тестовую раскладку: это не готовый production level pack.
+- Экономика не вводилась: HUD валют — placeholders 0, бустеры в review бесплатны; сохранения изолированы от будущего production.
+- Реальный map_common atlas используется; Batch A/B exports отсутствуют в репозитории, поэтому UI и символы временные программные.
+- Новые production-фоны не создавались. Существующий арт доступен только через `art=1`, фон не размножается и не зеркалится.
+- 200 solvable deals + 200 partial-board shuffles + geometric trap recovery прошли тесты.
+- Подробности и ограничения: `docs/SCREEN_REVIEW.md`.
+- Cache version: `20261005-1`. Отправка напрямую в main остановлена автоматической проверкой разрешений; результат сохраняется в review/lotus-screens-20261005 для review. Deployment и browser-verification ещё не выполнены.
+- Локальный browser-run заблокирован средой: Chromium не удалось установить (скачивание вернуло неполный архив); CLI agent-browser отсутствует. Не считать cross-device gate пройденным.
