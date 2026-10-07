@@ -1,4 +1,4 @@
-import { ScreenReviewScene } from './scenes/ScreenReviewScene.js?v=20261005-3';
+import { ScreenReviewScene } from './scenes/ScreenReviewScene.js?v=20261007-1';
 import { MapScene } from './scenes/MapScene.js?v=20260930-1';
 import { GameScene } from './scenes/GameScene.js?v=20260930-1';
 
@@ -60,3 +60,8 @@ window.addEventListener('resize', () => {
     }
   }, 120);
 });
+
+const gameRoot = document.getElementById('game-root');
+gameRoot.addEventListener('contextmenu', event => event.preventDefault());
+gameRoot.addEventListener('selectstart', event => event.preventDefault());
+game.canvas.setAttribute('draggable', 'false');

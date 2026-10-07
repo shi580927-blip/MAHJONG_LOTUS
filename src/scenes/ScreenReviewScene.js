@@ -2,6 +2,14 @@ import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261005-1';
 import { geometry, deal, free, pairs } from '../data/reviewBoard.js?v=20261005-1';
 const KEY = 'lotus.screen-review.v1';
 const CHAPTERS = ['Сад Безмятежности', 'Сад Цветущей Сакуры', 'Храм Лотоса'];
+const LOCATIONS = [
+  { name: 'Тихий пруд', sky: 0xe8efe0, water: 0xa9cec2, foliage: 0x6f9982 },
+  { name: 'Бамбуковая роща', sky: 0xe4ecd1, water: 0xb7c99c, foliage: 0x577d53 },
+  { name: 'Аллея сакуры', sky: 0xf5e4e5, water: 0xd6bfcf, foliage: 0xc7869f },
+  { name: 'Сад у моста', sky: 0xf1e7d8, water: 0xb0c8cf, foliage: 0xb47c91 },
+  { name: 'Храмовый двор', sky: 0xe8e3d6, water: 0xb4c6bc, foliage: 0x718e82 },
+  { name: 'Святилище Лотоса', sky: 0xe4e1ef, water: 0xb7bad5, foliage: 0x8986ad }
+];
 const SYMBOLS = ['一', '二', '三', '竹', '中', '白', '✿', '❖', '◉', '☽', '山', '水'];
 export class ScreenReviewScene extends Phaser.Scene {
   constructor() { super('ScreenReviewScene'); }
@@ -24,6 +32,7 @@ export class ScreenReviewScene extends Phaser.Scene {
     } catch { /* Storage may be unavailable. The review remains playable. */ }
     this.current = Math.min(60, Math.max(0, ...this.state.completed) + 1);
     this.level = this.current;
+    this.section = Math.floor((this.current-1)/10);
     const params = new URLSearchParams(location.search);
     this.guides = params.get('debug') === '1';
     this.editMode = params.get('edit') === '1';
@@ -50,7 +59,7 @@ export class ScreenReviewScene extends Phaser.Scene {
       oscillator.start(); oscillator.stop(this.audioContext.currentTime + .14);
     } catch { /* Audio optional. */ }
   }
-  go(mode) { this.mode = mode; this.modal = null; this.selected = null; this.draw(); }
+  go(mode) { if (mode === 'map' && this.mode !== 'map') this.section = Math.floor((this.current-1)/10); this.mode = mode; this.modal = null; this.selected = null; this.draw(); }
   draw() {
     this.tweens.killAll(); this.children.removeAll(true); this.input.removeAllListeners();
     this.modal = null; this.w = this.scale.width; this.h = this.scale.height; this.p = this.h > this.w;
@@ -61,6 +70,7 @@ export class ScreenReviewScene extends Phaser.Scene {
     if (this.guides) this.overlay();
   }
   background() {
+    if (this.mode === 'map' && !this.editMode) { this.locationBackground(); return; }
     const g = this.add.graphics();
     g.fillStyle(0xeeeede, 1).fillRect(0, 0, this.w, this.h);
     const key = `${this.mode === 'map' ? 'map' : 'gameplay'}-${this.p ? '9x16' : '16x9'}`;
@@ -74,6 +84,74 @@ export class ScreenReviewScene extends Phaser.Scene {
       lotus(this, this.p ? 85 : 145, this.h-140, this.p ? 1.1 : 1.5);
       lotus(this, this.w-100, this.p ? 340 : 250, 1);
     }
+  }
+  locationBackground() {
+    const theme = LOCATIONS[this.section], g = this.add.graphics();
+    g.fillStyle(theme.sky).fillRect(0, 0, this.w, this.h);
+    g.fillStyle(theme.water, .65).fillEllipse(this.w*.5, this.h*.68, this.w*1.35, this.h*.66);
+    g.lineStyle(3, 0xffffff, .28);
+    for (let i=0; i<7; i++) g.strokeEllipse(this.w*.5, this.h*.7, this.w*.5+i*135, this.h*.2+i*60);
+    for (const x of [this.w*.05, this.w*.95]) {
+      if (this.section === 1) {
+        for(let i=0;i<5;i++) {
+          const bx=x+(i-2)*28;
+          g.lineStyle(13,theme.foliage,.7).lineBetween(bx,this.h*.85,bx+30,this.h*.22);
+          for(let j=0;j<6;j++) g.fillStyle(theme.foliage,.6).fillEllipse(bx+45,this.h*(.3+j*.07),95,22);
+        }
+      } else if (this.section < 4) {
+        g.fillStyle(0x846e5e,.5).fillRoundedRect(x-15,this.h*.31,30,this.h*.5,10);
+        for(let i=0;i<5;i++) g.fillStyle(theme.foliage,.45).fillCircle(x+Math.sin(i*2)*95,this.h*.28+Math.cos(i*2)*70,110);
+      } else {
+        g.fillStyle(theme.foliage,.5).fillRect(x-70,this.h*.32,140,this.h*.43);
+        g.fillStyle(0x65576f,.65).fillTriangle(x-130,this.h*.34,x+130,this.h*.34,x,this.h*.22);
+        g.lineStyle(5,0xc3a25e,.65).lineBetween(x-100,this.h*.34,x+100,this.h*.34);
+      }
+    }
+    if(this.section === 3) {
+      g.lineStyle(20,0x9b7761,.45).strokeEllipse(this.w*.5,this.h*.82,this.w*.85,this.h*.18);
+    }
+    lotus(this,this.w*.13,this.h*.83,1.3,this.section>=2);
+    lotus(this,this.w*.87,this.h*.74,1.1,this.section>=2);
+  }
+  sectionMap() {
+    const first=this.section*10+1, last=first+9;
+    this.level=first;
+    const points=Array.from({length:10},(_,i)=>this.p
+      ? {x: [310,770,770,310,310,770,770,310,310,770][i], y:1450-Math.floor(i/2)*245}
+      : {x:260+(i%5)*350,y:i<5?400:740});
+    // A compact serpentine route, entirely visible in both design frames.
+    const order=this.p?points:points.slice(0,5).concat(points.slice(5).reverse());
+    const g=this.add.graphics();
+    for(let i=0;i<9;i++) {
+      const a=order[i],b=order[i+1];
+      g.lineStyle(6,C.gold,.7).lineBetween(a.x,a.y,b.x,b.y);
+    }
+    order.forEach((point,i)=>{
+      const n=first+i,complete=this.state.completed.includes(n),locked=n>this.current;
+      const frame=locked?'locked':n===this.current?'current':complete?'completed':'available';
+      if(this.textures.exists('review-map')) this.add.image(point.x,point.y,'review-map',`map_node_${frame}`).setDisplaySize(150,150);
+      else this.add.circle(point.x,point.y,65,locked?0x82948b:C.jade);
+      text(this,point.x,point.y+42,String(n),29,'#fff6d5');
+      if(n===this.current) text(this,point.x,point.y-100,'ВЫ ЗДЕСЬ',20,C.ink);
+      if(i===9) text(this,point.x,point.y+115,n%20===0?'Врата главы':'Новая локация',21,C.ink);
+      if(!locked) this.add.zone(point.x,point.y,170,170).setInteractive({useHandCursor:true}).on('pointerup',()=>{
+        if(this.modal)return;this.level=n;this.newBoard();this.go('game');
+      });
+    });
+    this.hud('Глава '+(Math.floor(this.section/2)+1),LOCATIONS[this.section].name);
+    text(this,this.w/2,this.p?250:175,`Участок ${this.section+1} из 6 · Уровни ${first}–${last}`,26,C.ink);
+    const by=this.p?1775:995;
+    panel(this,this.w/2,by,this.w-64,this.p?210:130,C.ivory,.97);
+    button(this,this.p?150:180,by,110,82,'‹',()=>{if(this.section>0){this.section--;this.draw();}},false,46);
+    button(this,this.w-(this.p?150:180),by,110,82,'›',()=>{if(this.section<5){this.section++;this.draw();}},false,46);
+    const count=this.state.completed.filter(n=>n>=first&&n<=last).length;
+    text(this,this.w/2,by-(this.p?55:35),`${count} / 10 пройдено`,24,C.muted);
+    const target=this.current>=first&&this.current<=last?this.current:first;
+    const available=first<=this.current;
+    button(this,this.w/2,by+30,this.p?590:620,78,available?`Играть · ${target}`:'Локация пока закрыта',()=>{
+      if(!available)return;this.level=target;this.newBoard();this.go('game');
+    },available,28);
+    if(this.section!==Math.floor((this.current-1)/10)) button(this,this.w/2,this.p?1625:875,380,68,'К текущему участку',()=>{this.section=Math.floor((this.current-1)/10);this.draw();},false,24);
   }
   hud(title, subtitle = '') {
     const y = this.p ? 70 : 76;
@@ -211,6 +289,7 @@ export class ScreenReviewScene extends Phaser.Scene {
     }
   }
   map() {
+    if (!this.editMode) { this.sectionMap(); return; }
     this.level = this.current;
     const top = this.p ? 250 : 180, bottom = this.p ? 1640 : 900;
     const step = this.p ? 225 : 275;

@@ -29,3 +29,12 @@ canvas {
 
 #review-label { position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 10; max-width: calc(100vw - 12px); overflow-x: auto; padding: 3px 12px; background: #082d27e8; color: #e7dac0; font: 10px Arial,sans-serif; white-space: nowrap; border-radius: 0 0 8px 8px; }
 #review-label a {color:#f2d799;text-decoration:underline;}
+
+/* Native selection and long-press overlays must not intercept game taps. */
+html, body, #game-root, canvas, #review-label {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+#game-root, canvas { touch-action: none; }
