@@ -6,12 +6,16 @@ export function panel(s, x, y, w, h, fill = C.ivory, alpha = 1, radius = 26) {
   const g = s.add.graphics();
   g.fillStyle(0x082f28, .12).fillRoundedRect(x - w/2, y - h/2 + 7, w, h, radius);
   g.fillStyle(fill, alpha).fillRoundedRect(x - w/2, y - h/2, w, h, radius);
+  g.lineStyle(1, 0xffe7ac, .8).strokeRoundedRect(x - w/2 + 5, y - h/2 + 5, w - 10, h - 10, Math.max(6,radius-4));
   g.lineStyle(2, C.gold, .85).strokeRoundedRect(x - w/2, y - h/2, w, h, radius);
   return g;
 }
 export function button(s, x, y, w, h, title, action, primary = false, size = 28) {
-  const bg = panel(s, 0, 0, w, h, primary ? C.jade : C.ivory);
+  const iconFrame = ({'‹':'back','›':'next','☰':'settings'})[title];
+  const hasIcon = iconFrame && s.textures.exists('review-ui');
+  const bg = hasIcon ? s.add.image(0,0,'review-ui',iconFrame).setDisplaySize(Math.min(w,h),Math.min(w,h)) : panel(s, 0, 0, w, h, primary ? C.jade : C.ivory);
   const label = text(s, 0, 0, title, size, primary ? '#fff4d6' : C.ink);
+  if(hasIcon) label.setVisible(false);
   const hit = s.add.zone(0, 0, w, h).setInteractive({ useHandCursor: true });
   const container = s.add.container(x, y, [bg, label, hit]);
   hit.on('pointerover', () => { bg.setAlpha(.84); });

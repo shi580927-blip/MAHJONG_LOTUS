@@ -1,4 +1,4 @@
-import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261005-1';
+import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-1';
 import { geometry, deal, free, pairs } from '../data/reviewBoard.js?v=20261005-1';
 const KEY = 'lotus.screen-review.v1';
 const CHAPTERS = ['Сад Безмятежности', 'Сад Цветущей Сакуры', 'Храм Лотоса'];
@@ -16,8 +16,12 @@ export class ScreenReviewScene extends Phaser.Scene {
   preload() {
     const params = new URLSearchParams(location.search);
     this.editMode = params.get('edit') === '1';
-    this.art = params.get('art') === '1' || this.editMode;
+    this.art = params.get('art') !== '0' && params.get('debug') !== '1';
     this.load.atlas('review-map', 'assets/runtime/atlases/map_common/map_common.webp', 'assets/runtime/atlases/map_common/map_common.json');
+    this.load.atlas('review-tiles', 'assets/runtime/atlases/review_tiles/review_tiles.webp', 'assets/runtime/atlases/review_tiles/review_tiles.json');
+    this.load.atlas('review-ui', 'assets/runtime/atlases/review_ui/review_ui.webp', 'assets/runtime/atlases/review_ui/review_ui.json');
+    this.load.image('section01-landscape', 'assets/runtime/backgrounds/sections/01/map_landscape.webp');
+    this.load.image('section01-portrait', 'assets/runtime/backgrounds/sections/01/map_portrait.webp');
     if (this.art) {
       for (const mode of ['map', 'gameplay']) for (const ratio of ['16x9', '9x16']) {
         this.load.image(`${mode}-${ratio}`, `assets/runtime/backgrounds/ch1/${mode}/ch1_${mode === 'map' ? 'map' : 'level'}_bg_${ratio}.webp`);
@@ -86,6 +90,11 @@ export class ScreenReviewScene extends Phaser.Scene {
     }
   }
   locationBackground() {
+    const key = `section01-${this.p ? 'portrait' : 'landscape'}`;
+    if(this.art && this.section===0 && this.textures.exists(key)) {
+      this.add.image(this.w/2,this.h/2,key).setDisplaySize(this.w,this.h);
+      return;
+    }
     const theme = LOCATIONS[this.section], g = this.add.graphics();
     g.fillStyle(theme.sky).fillRect(0, 0, this.w, this.h);
     g.fillStyle(theme.water, .65).fillEllipse(this.w*.5, this.h*.68, this.w*1.35, this.h*.66);
@@ -116,15 +125,24 @@ export class ScreenReviewScene extends Phaser.Scene {
   sectionMap() {
     const first=this.section*10+1, last=first+9;
     this.level=first;
+    const polished=this.art && this.section===0;
     const points=Array.from({length:10},(_,i)=>this.p
       ? {x: [310,770,770,310,310,770,770,310,310,770][i], y:1450-Math.floor(i/2)*245}
       : {x:260+(i%5)*350,y:i<5?400:740});
-    // A compact serpentine route, entirely visible in both design frames.
-    const order=this.p?points:points.slice(0,5).concat(points.slice(5).reverse());
+    let order=this.p?points:points.slice(0,5).concat(points.slice(5).reverse());
+    if(polished) {
+      // Art has no labels: sequence is authoritative and supplied by code.
+      order=this.p
+        ? [[.277,.742],[.735,.742],[.728,.565],[.31,.565],[.32,.425],[.717,.425],[.719,.309],[.339,.309],[.355,.205],[.718,.185]].map(([x,y])=>({x:x*this.w,y:y*this.h}))
+        : [[.20,.358],[.35,.358],[.50,.358],[.65,.358],[.81,.358],[.81,.665],[.65,.665],[.50,.665],[.35,.665],[.20,.665]].map(([x,y])=>({x:x*this.w,y:y*this.h}));
+    }
+    this.mapPoints=order;
     const g=this.add.graphics();
     for(let i=0;i<9;i++) {
       const a=order[i],b=order[i+1];
-      g.lineStyle(6,C.gold,.7).lineBetween(a.x,a.y,b.x,b.y);
+      if(!polished) g.lineStyle(6,C.gold,.7).lineBetween(a.x,a.y,b.x,b.y);
+      // On artwork, discreet progression dots clarify the visiting order.
+      else for(let k=1;k<6;k++) g.fillStyle(C.gold,.85).fillCircle(a.x+(b.x-a.x)*k/6,a.y+(b.y-a.y)*k/6,4);
     }
     order.forEach((point,i)=>{
       const n=first+i,complete=this.state.completed.includes(n),locked=n>this.current;
@@ -132,13 +150,14 @@ export class ScreenReviewScene extends Phaser.Scene {
       if(this.textures.exists('review-map')) this.add.image(point.x,point.y,'review-map',`map_node_${frame}`).setDisplaySize(150,150);
       else this.add.circle(point.x,point.y,65,locked?0x82948b:C.jade);
       text(this,point.x,point.y+42,String(n),29,'#fff6d5');
-      if(n===this.current) text(this,point.x,point.y-100,'ВЫ ЗДЕСЬ',20,C.ink);
-      if(i===9) text(this,point.x,point.y+115,n%20===0?'Врата главы':'Новая локация',21,C.ink);
+      if(n===this.current) { panel(this,point.x,point.y-108,190,42,C.ivory,.96,14); text(this,point.x,point.y-108,'ВЫ ЗДЕСЬ',20,C.ink); }
+      if(i===9) { panel(this,point.x,point.y+115,220,42,C.ivory,.96,14); text(this,point.x,point.y+115,n%20===0?'Врата главы':'Новая локация',21,C.ink); }
       if(!locked) this.add.zone(point.x,point.y,170,170).setInteractive({useHandCursor:true}).on('pointerup',()=>{
         if(this.modal)return;this.level=n;this.newBoard();this.go('game');
       });
     });
     this.hud('Глава '+(Math.floor(this.section/2)+1),LOCATIONS[this.section].name);
+    panel(this,this.w/2,this.p?250:175,this.p?730:850,48,C.ivory,.95,16);
     text(this,this.w/2,this.p?250:175,`Участок ${this.section+1} из 6 · Уровни ${first}–${last}`,26,C.ink);
     const by=this.p?1775:995;
     panel(this,this.w/2,by,this.w-64,this.p?210:130,C.ivory,.97);
@@ -398,11 +417,11 @@ export class ScreenReviewScene extends Phaser.Scene {
   newBoard() { this.tiles=geometry(); deal(this.tiles); this.selected=null; this.hinted=[]; this.notice=null; }
   gameplay() {
     this.hud('Уровень',String(this.level));
-    const bx=this.p?540:960, by=this.p?885:525, bw=this.p?900:1280, bh=this.p?1140:640;
+    const bx=this.p?540:960, by=this.p?885:525, bw=this.p?900:1280, bh=this.p?1050:700;
     panel(this,bx,by,bw,bh,C.jade,this.art ? .92 : .98,36);
     text(this,bx,by-bh/2+40,'СОБИРАЙТЕ ОДИНАКОВЫЕ СВОБОДНЫЕ ПАРЫ',this.p?20:19,'#bfd3c1');
     // Same board geometry in both orientations: mobile reflows nothing mid-game.
-    const tw=this.p?134:102, th=tw*1.3, dx=tw+3, dy=th+4;
+    const tw=this.p?134:124, th=tw*1.25, dx=tw+3, dy=th+4;
     const ox=bx-2.5*dx, oy=by-1.5*dy;
     this.boardObjects=[];
     const live=this.tiles.filter(t=>!t.removed).sort((a,b)=>a.z-b.z||a.y-b.y||a.x-b.x);
@@ -410,11 +429,15 @@ export class ScreenReviewScene extends Phaser.Scene {
       const x=ox+tile.x*dx-tile.z*10, y=oy+tile.y*dy-tile.z*13;
       const isFree=free(tile,this.tiles), selected=tile.id===this.selected, hinted=this.hinted?.includes(tile.id);
       const g=this.add.graphics();
-      g.fillStyle(0x082b26,.3).fillRoundedRect(x-tw/2+4,y-th/2+12,tw,th,12);
-      g.fillStyle(0x247263).fillRoundedRect(x-tw/2,y-th/2+6,tw,th,12);
-      g.fillStyle(selected?0xffe5ac:hinted?0xf7dfad:isFree?0xfff9eb:0xd3d7c5).fillRoundedRect(x-tw/2+4,y-th/2,tw-8,th-7,10);
-      g.lineStyle(selected||hinted?4:2,selected||hinted?0xf6ca65:C.gold,1).strokeRoundedRect(x-tw/2+4,y-th/2,tw-8,th-7,10);
-      const symbol=text(this,x,y-5,SYMBOLS[tile.symbol],this.p?49:62,tile.symbol%3===0?'#ae626b':'#21614f',false);
+      let symbol;
+      if(this.textures.exists('review-tiles')) {
+        symbol=this.add.image(x,y,'review-tiles',`tile_${String(tile.symbol).padStart(2,'0')}`).setDisplaySize(tw,th);
+        if(!isFree) symbol.setTint(0xb5c1b6);
+        if(selected||hinted) g.lineStyle(5,0xf6ca65,1).strokeRoundedRect(x-tw/2-2,y-th/2-2,tw+4,th+4,12);
+      } else {
+        g.fillStyle(isFree?0xfff9eb:0xd3d7c5).fillRoundedRect(x-tw/2,y-th/2,tw,th,12);
+        symbol=text(this,x,y-5,SYMBOLS[tile.symbol],49,C.ink);
+      }
       const hit=this.add.zone(x,y,tw,th).setInteractive({useHandCursor:isFree});
       hit.on('pointerup',()=>this.selectTile(tile));
       this.boardObjects.push({tile,hit,x,y,g,symbol});
@@ -424,7 +447,9 @@ export class ScreenReviewScene extends Phaser.Scene {
     const by2=this.p?1710:965, spacing=this.p?310:330;
     ['Подсказка','Перемешать','Благословение'].forEach((name,i)=>{
       const x=this.w/2+(i-1)*spacing;
-      button(this,x,by2,this.p?280:300,this.p?112:88,`${['◇','↻','✿'][i]}  ${name}`,()=>this.boost(i),i===2,this.p?25:26);
+      const control=button(this,x,by2,this.p?280:300,this.p?150:116,name,()=>this.boost(i),false,this.p?25:26);
+      control.getData('label').setY(this.p?38:25);
+      if(this.textures.exists('review-ui')) this.add.image(x,by2-(this.p?45:34),'review-ui',['hint','shuffle','blessing'][i]).setDisplaySize(this.p?100:86,this.p?100:86);
     });
     panel(this,this.w/2,this.p?1820:1043,this.p?940:1140,48,C.ivory,.98,16);
     text(this,this.w/2,this.p?1820:1043,this.notice||'Свободная плитка открыта сверху и хотя бы с одной стороны',this.p?23:22,C.muted);

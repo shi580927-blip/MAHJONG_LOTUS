@@ -1,0 +1,252 @@
+{
+  "frames": {
+    "tile_00": {
+      "frame": {
+        "x": 8,
+        "y": 8,
+        "w": 192,
+        "h": 240
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 192,
+        "h": 240
+      },
+      "sourceSize": {
+        "w": 192,
+        "h": 240
+      }
+    },
+    "tile_01": {
+      "frame": {
+        "x": 216,
+        "y": 8,
+        "w": 192,
+        "h": 240
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 192,
+        "h": 240
+      },
+      "sourceSize": {
+        "w": 192,
+        "h": 240
+      }
+    },
+    "tile_02": {
+      "frame": {
+        "x": 424,
+        "y": 8,
+        "w": 192,
+        "h": 240
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 192,
+        "h": 240
+      },
+      "sourceSize": {
+        "w": 192,
+        "h": 240
+      }
+    },
+    "tile_03": {
+      "frame": {
+        "x": 632,
+        "y": 8,
+        "w": 192,
+        "h": 240
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 192,
+        "h": 240
+      },
+      "sourceSize": {
+        "w": 192,
+        "h": 240
+      }
+    },
+    "tile_04": {
+      "frame": {
+        "x": 8,
+        "y": 264,
+        "w": 192,
+        "h": 240
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 192,
+        "h": 240
+      },
+      "sourceSize": {
+        "w": 192,
+        "h": 240
+      }
+    },
+    "tile_05": {
+      "frame": {
+        "x": 216,
+        "y": 264,
+        "w": 192,
+        "h": 240
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 192,
+        "h": 240
+      },
+      "sourceSize": {
+        "w": 192,
+        "h": 240
+      }
+    },
+    "tile_06": {
+      "frame": {
+        "x": 424,
+        "y": 264,
+        "w": 192,
+        "h": 240
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 192,
+        "h": 240
+      },
+      "sourceSize": {
+        "w": 192,
+        "h": 240
+      }
+    },
+    "tile_07": {
+      "frame": {
+        "x": 632,
+        "y": 264,
+        "w": 192,
+        "h": 240
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 192,
+        "h": 240
+      },
+      "sourceSize": {
+        "w": 192,
+        "h": 240
+      }
+    },
+    "tile_08": {
+      "frame": {
+        "x": 8,
+        "y": 520,
+        "w": 192,
+        "h": 240
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 192,
+        "h": 240
+      },
+      "sourceSize": {
+        "w": 192,
+        "h": 240
+      }
+    },
+    "tile_09": {
+      "frame": {
+        "x": 216,
+        "y": 520,
+        "w": 192,
+        "h": 240
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 192,
+        "h": 240
+      },
+      "sourceSize": {
+        "w": 192,
+        "h": 240
+      }
+    },
+    "tile_10": {
+      "frame": {
+        "x": 424,
+        "y": 520,
+        "w": 192,
+        "h": 240
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 192,
+        "h": 240
+      },
+      "sourceSize": {
+        "w": 192,
+        "h": 240
+      }
+    },
+    "tile_11": {
+      "frame": {
+        "x": 632,
+        "y": 520,
+        "w": 192,
+        "h": 240
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 192,
+        "h": 240
+      },
+      "sourceSize": {
+        "w": 192,
+        "h": 240
+      }
+    }
+  },
+  "meta": {
+    "image": "review_tiles.webp",
+    "size": {
+      "w": 832,
+      "h": 768
+    },
+    "scale": "1"
+  }
+}
