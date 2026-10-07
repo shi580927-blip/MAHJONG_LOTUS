@@ -1,4 +1,4 @@
-import { ScreenReviewScene } from './scenes/ScreenReviewScene.js?v=20261008-2';
+import { ScreenReviewScene } from './scenes/ScreenReviewScene.js?v=20261008-3';
 import { MapScene } from './scenes/MapScene.js?v=20260930-1';
 import { GameScene } from './scenes/GameScene.js?v=20260930-1';
 

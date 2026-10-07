@@ -1,4 +1,4 @@
-import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-2';
+import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-3';
 import { geometry, deal, free, pairs } from '../data/reviewBoard.js?v=20261005-1';
 const KEY = 'lotus.screen-review.v1';
 const CHAPTERS = ['Сад Безмятежности', 'Сад Цветущей Сакуры', 'Храм Лотоса'];
@@ -65,7 +65,11 @@ export class ScreenReviewScene extends Phaser.Scene {
   }
   go(mode) { if (mode === 'map' && this.mode !== 'map') this.section = Math.floor((this.current-1)/10); this.mode = mode; this.modal = null; this.selected = null; this.draw(); }
   draw() {
-    this.tweens.killAll(); this.children.removeAll(true); this.input.removeAllListeners();
+    this.tweens.killAll();
+    // DisplayList.removeAll removes rendering entries, not interactive objects.
+    // Destroy the previous view so invisible map nodes/buttons cannot receive taps.
+    for (const child of [...this.children.list]) child.destroy();
+    this.input.removeAllListeners();
     this.modal = null; this.w = this.scale.width; this.h = this.scale.height; this.p = this.h > this.w;
     this.background();
     if (this.mode === 'menu') this.menu();
