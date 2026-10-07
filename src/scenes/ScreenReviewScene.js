@@ -1,4 +1,4 @@
-import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-1';
+import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-2';
 import { geometry, deal, free, pairs } from '../data/reviewBoard.js?v=20261005-1';
 const KEY = 'lotus.screen-review.v1';
 const CHAPTERS = ['Сад Безмятежности', 'Сад Цветущей Сакуры', 'Храм Лотоса'];
@@ -421,7 +421,7 @@ export class ScreenReviewScene extends Phaser.Scene {
     panel(this,bx,by,bw,bh,C.jade,this.art ? .92 : .98,36);
     text(this,bx,by-bh/2+40,'СОБИРАЙТЕ ОДИНАКОВЫЕ СВОБОДНЫЕ ПАРЫ',this.p?20:19,'#bfd3c1');
     // Same board geometry in both orientations: mobile reflows nothing mid-game.
-    const tw=this.p?134:124, th=tw*1.25, dx=tw+3, dy=th+4;
+    const tw=this.p?134:116, th=tw*1.25, dx=tw+3, dy=th+4;
     const ox=bx-2.5*dx, oy=by-1.5*dy;
     this.boardObjects=[];
     const live=this.tiles.filter(t=>!t.removed).sort((a,b)=>a.z-b.z||a.y-b.y||a.x-b.x);
