@@ -1,5 +1,5 @@
-import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-12';
-import { geometry, deal, free, pairs, boardPlacement, LEVELS } from '../data/reviewBoard.js?v=20261008-12';
+import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-13';
+import { geometry, deal, free, pairs, boardPlacement, LEVELS } from '../data/reviewBoard.js?v=20261008-13';
 const KEY = 'lotus.screen-review.v1';
 const CHAPTERS = ['Сад Безмятежности', 'Сад Цветущей Сакуры', 'Храм Лотоса'];
 const LOCATIONS = [
@@ -81,13 +81,14 @@ export class ScreenReviewScene extends Phaser.Scene {
     const aspect = ratio === 'portrait' ? '9x16' : '16x9';
     let key, path;
     if (this.mode === 'map' && !this.editMode) {
-      if (this.section > 1) return true;
+      if (this.section > 2) return true;
       const section = String(this.section + 1).padStart(2,'0');
       key = `section${section}-${ratio}`;
       path = `assets/runtime/backgrounds/sections/${section}/map_${ratio}.webp`;
-    } else if (this.mode === 'game' && this.level >= 11 && this.level <= 20) {
-      key = `section02-${ratio}`;
-      path = `assets/runtime/backgrounds/sections/02/map_${ratio}.webp`;
+    } else if (this.mode === 'game' && this.level >= 11 && this.level <= 30) {
+      const section = String(Math.floor((this.level-1)/10)+1).padStart(2,'0');
+      key = `section${section}-${ratio}`;
+      path = `assets/runtime/backgrounds/sections/${section}/map_${ratio}.webp`;
     } else {
       const mode = this.mode === 'map' ? 'map' : 'gameplay';
       key = `${mode}-${aspect}`;
@@ -133,8 +134,9 @@ export class ScreenReviewScene extends Phaser.Scene {
     if (this.mode === 'map' && !this.editMode) { this.locationBackground(); return; }
     const g = this.add.graphics();
     g.fillStyle(0xeeeede, 1).fillRect(0, 0, this.w, this.h);
-    const bambooGame = this.mode === 'game' && this.level >= 11 && this.level <= 20;
-    const key = bambooGame ? `section02-${this.p ? 'portrait' : 'landscape'}` : `${this.mode === 'map' ? 'map' : 'gameplay'}-${this.p ? '9x16' : '16x9'}`;
+    const locationGame = this.mode === 'game' && this.level >= 11 && this.level <= 30;
+    const section = String(Math.floor((this.level-1)/10)+1).padStart(2,'0');
+    const key = locationGame ? `section${section}-${this.p ? 'portrait' : 'landscape'}` : `${this.mode === 'map' ? 'map' : 'gameplay'}-${this.p ? '9x16' : '16x9'}`;
     if (this.art && this.textures.exists(key)) {
       this.add.image(this.w/2, this.h/2, key).setDisplaySize(this.w, this.h);
       this.add.rectangle(this.w/2, this.h/2, this.w, this.h, 0xf3efdf, .2);
@@ -148,7 +150,7 @@ export class ScreenReviewScene extends Phaser.Scene {
   }
   locationBackground() {
     const key = `section${String(this.section+1).padStart(2,'0')}-${this.p ? 'portrait' : 'landscape'}`;
-    if(this.art && this.section<=1 && this.textures.exists(key)) {
+    if(this.art && this.section<=2 && this.textures.exists(key)) {
       this.add.image(this.w/2,this.h/2,key).setDisplaySize(this.w,this.h);
       return;
     }
@@ -182,7 +184,7 @@ export class ScreenReviewScene extends Phaser.Scene {
   sectionMap() {
     const first=this.section*10+1, last=first+9;
     this.level=first;
-    const polished=this.art && this.section<=1;
+    const polished=this.art && this.section<=2;
     const points=Array.from({length:10},(_,i)=>this.p
       ? {x: [310,770,770,310,310,770,770,310,310,770][i], y:1450-Math.floor(i/2)*245}
       : {x:260+(i%5)*350,y:i<5?400:740});
@@ -198,6 +200,11 @@ export class ScreenReviewScene extends Phaser.Scene {
         ? [[.28,.67],[.72,.67],[.72,.51],[.28,.51],[.28,.40],[.72,.40],[.72,.29],[.28,.29],[.28,.20],[.72,.20]].map(([x,y])=>({x:x*this.w,y:y*this.h}))
         : [[.14,.39],[.32,.39],[.50,.39],[.68,.39],[.86,.39],[.86,.63],[.68,.63],[.50,.63],[.32,.63],[.14,.63]].map(([x,y])=>({x:x*this.w,y:y*this.h}));
     }
+    if(polished && this.section===2) {
+      order=this.p
+        ? [[.28,.71],[.72,.71],[.72,.547],[.28,.547],[.28,.41],[.72,.41],[.72,.293],[.28,.293],[.28,.193],[.72,.193]].map(([x,y])=>({x:x*this.w,y:y*this.h}))
+        : [[.14,.372],[.32,.372],[.50,.372],[.68,.372],[.86,.372],[.86,.60],[.68,.60],[.50,.60],[.32,.60],[.14,.60]].map(([x,y])=>({x:x*this.w,y:y*this.h}));
+    }
     this.mapPoints=order;
     const g=this.add.graphics();
     for(let i=0;i<9;i++) {
@@ -212,8 +219,11 @@ export class ScreenReviewScene extends Phaser.Scene {
       if(this.textures.exists('review-map')) this.add.image(point.x,point.y,'review-map',`map_node_${frame}`).setDisplaySize(150,150);
       else this.add.circle(point.x,point.y,65,locked?0x82948b:C.jade);
       text(this,point.x,point.y+42,String(n),29,'#fff6d5');
-      if(n===this.current) { panel(this,point.x,point.y-108,190,42,C.ivory,.96,14); text(this,point.x,point.y-108,'ВЫ ЗДЕСЬ',20,C.ink); }
-      if(i===9 && !(polished && this.section===1 && this.p)) { panel(this,point.x,point.y+115,220,42,C.ivory,.96,14); text(this,point.x,point.y+115,n%20===0?'Врата главы':'Новая локация',21,C.ink); }
+      if(n===this.current) {
+        const tagY=point.y+(polished && this.section===2 && this.p && i>=8 ? 95 : -108);
+        panel(this,point.x,tagY,190,42,C.ivory,.96,14); text(this,point.x,tagY,'ВЫ ЗДЕСЬ',20,C.ink);
+      }
+      if(i===9 && !(polished && this.section>=1 && this.p)) { panel(this,point.x,point.y+115,220,42,C.ivory,.96,14); text(this,point.x,point.y+115,n%20===0?'Врата главы':'Новая локация',21,C.ink); }
       if(!locked) this.add.zone(point.x,point.y,170,170).setInteractive({useHandCursor:true}).on('pointerup',()=>{
         if(this.modal)return;this.level=n;this.newBoard();this.go('game');
       });

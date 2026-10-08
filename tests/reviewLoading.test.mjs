@@ -25,3 +25,13 @@ scene.mode='game';scene.level=1;scene.scale={width:1080,height:1920};
 assert.equal(scene.ensureBackground(),false);
 assert.equal(requests[2].key,'gameplay-9x16','Orientation switch must load the correct background');
 console.log('PASS: on-demand backgrounds, duplicate guard, input restored, failure recovery, orientation change');
+
+loaded.add(requests[2].key);completion();
+scene.level=21;assert.equal(scene.ensureBackground(),false);
+assert.deepEqual(requests[3],{key:'section03-portrait',path:'assets/runtime/backgrounds/sections/03/map_portrait.webp'});
+loaded.add(requests[3].key);completion();
+scene.level=30;assert.equal(scene.ensureBackground(),true);
+scene.mode='map';scene.section=2;assert.equal(scene.ensureBackground(),true,'Sakura map reuses the already loaded location background');
+scene.section=3;assert.equal(scene.ensureBackground(),true,'Unillustrated sections retain their test surroundings');
+scene.section=2;scene.scale={width:1920,height:1080};assert.equal(scene.ensureBackground(),false);
+assert.deepEqual(requests[4],{key:'section03-landscape',path:'assets/runtime/backgrounds/sections/03/map_landscape.webp'});

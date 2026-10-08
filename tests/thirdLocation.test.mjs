@@ -1,14 +1,15 @@
 import assert from 'node:assert/strict';
-import { geometry, deal, free, boardPlacement, SECOND_LOCATION } from '../src/data/reviewBoard.js';
-let seed=193;
+import { geometry, deal, free, boardPlacement, THIRD_LOCATION } from '../src/data/reviewBoard.js';
+let seed=821;
 const random=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296);
 const footprints=new Set();
 const counts=[];
-for(let level=11;level<=20;level++) {
+for(let level=21;level<=30;level++) {
   const starting=geometry(level);
   const footprint=JSON.stringify(starting);
   footprints.add(footprint); counts.push(starting.length);
   assert.equal(starting.length%2,0);
+  for(const tile of starting.filter(t=>t.z>0)) assert(starting.some(t=>t.z===tile.z-1 && Math.abs(t.x-tile.x)<1 && Math.abs(t.y-tile.y)<1),'Every raised tile must have support');
   for(let run=0;run<100;run++) {
     const tiles=geometry(level), solution=deal(tiles,random);
     assert.equal(JSON.stringify(tiles.map(({id,x,y,z})=>({id,x,y,z}))),footprint,'Initial deal must keep the designed shape');
@@ -31,6 +32,7 @@ for(let level=11;level<=20;level++) {
   }
 }
 assert.equal(footprints.size,10);
-assert.equal(SECOND_LOCATION.length,10);
+assert.equal(THIRD_LOCATION.length,10);
+assert.equal(new Set(THIRD_LOCATION.map(t=>t.name)).size,10);
 assert.deepEqual(geometry(31),geometry());
-console.log('PASS: ten bamboo layouts, 1,000 complete solutions, stable fit in both orientations; tile counts:',counts.join(', '));
+console.log('PASS: ten sakura layouts, 1,000 complete solutions, stable fit in both orientations; tile counts:',counts.join(', '));

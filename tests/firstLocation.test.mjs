@@ -32,5 +32,5 @@ for(let level=1;level<=10;level++) {
 }
 assert.equal(footprints.size,10);
 assert.equal(FIRST_LOCATION.length,10);
-assert.deepEqual(geometry(21),geometry());
+assert.deepEqual(geometry(31),geometry());
 console.log('PASS: ten distinct layouts, 1,000 complete solutions, stable fit in both orientations; tile counts:',counts.join(', '));

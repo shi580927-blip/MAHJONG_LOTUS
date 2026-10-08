@@ -573,3 +573,13 @@ Milestones:
 - если approved композиция требует parallax, она раскладывается на слои после утверждения, а не используется как причина менять layout.
 
 Operational layout rules: `docs/LAYOUT_WORKFLOW.md`.
+
+
+## 2026-10-08 — Section 03 / Sakura Alley review integration
+Status: **TEST / на проверку**, not an automatic production approval.
+- Two independent landscape/portrait compositions generated with the built-in image tool. Runtime: `assets/runtime/backgrounds/sections/03/map_landscape.webp` (1920×1080) and `map_portrait.webp` (1080×1920). RGB WebP quality 87; approximately 0.6 MB each.
+- Shared art for section map and level 21–30 surroundings; HUD, board, nodes, numbers and labels stay separate. No new tile/button assets or animation frames. On-demand load retains duplicate/error guards.
+- Landscape prompt: luminous premium oriental fantasy zen sakura garden, two broad ivory stone terraces spanning the image at roughly 40%/64%, right-side stairs, pink blossom trees at sides, gold lanterns, jade koi/lotus pond, distant pagodas/mountains/waterfalls. Quiet top and bottom for separate UI; no text, numbers, UI, nodes, tiles or people.
+- Portrait prompt: same style, five distinct broad empty stone terraces for two coded nodes per terrace, zigzag alternating-side stairs, pink blossom frame, distant pagoda, quiet HUD top and koi pond bottom; no text, numbers, UI or nodes. Generated artwork inspected before integration.
+- Code coordinates follow visible terrace centers: landscape y=.372/.60; portrait y=.193/.293/.41/.547/.71. Portrait is independently composed, not cropped from landscape. On the upper portrait terrace the current tag sits below the node to avoid the section header.
+- Output normalization only resizes to the design frame and converts to WebP; it does not replace approved previous locations. Final art/physical mobile approval remains pending.

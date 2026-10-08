@@ -352,3 +352,8 @@ assets/runtime/backgrounds/chN/
 - автоматический crop/тайлинг/зеркалирование не считается production-решением для background composition;
 - full-screen far/mid/foreground layers создаются только после утверждения clean composition и только если реально нужны parallax/ambient-эффектам;
 - матовые внешние поля ultra-wide не входят в gameplay background и не попадают в эти папки.
+
+
+## Section 03 / Sakura Alley — TEST, 2026-10-08
+`assets/runtime/backgrounds/sections/03/map_landscape.webp` and `map_portrait.webp` are standalone RGB backgrounds outside atlases. Dimensions 1920×1080 / 1080×1920; max edge 1920 px.
+Texture keys: `section03-landscape` / `section03-portrait`. Both section map and authored levels 21–30 reuse the key for the current orientation. Loaded only when needed; switching orientation loads the independent composition. Existing map_common, review_tiles, review_ui and review_buttons atlases are reused unchanged.
