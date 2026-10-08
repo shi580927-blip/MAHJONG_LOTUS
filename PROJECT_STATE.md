@@ -307,3 +307,5 @@ Art-first подход прекращён. Игровая композиция �
 - Buttons use nine-slice on WebGL, preserving corners while fitting menu, map, boosters and modal action sizes. Canvas and schematic view retain the programmatic fallback. Existing round navigation/settings/booster icons remain separate assets; labels remain native text and shrink only if too wide.
 - Added hover tint, press tint and a small label shift that restores on release/out; original modal input guard retained. Locked-location CTA now uses inactive skin and has no interactive hit zone.
 - Cache 20261008-7. Tests cover label restoration, modal shielding and disabled action rejection; all existing board/progress/input regressions still pass.
+
+Canvas verification: use atlas images for button skins when WebGL nine-slice is unavailable; published revision 20261008-8.

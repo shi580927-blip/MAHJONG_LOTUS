@@ -13,12 +13,14 @@ export function panel(s, x, y, w, h, fill = C.ivory, alpha = 1, radius = 26) {
 export function button(s, x, y, w, h, title, action, primary = false, size = 28, enabled = true) {
   const iconFrame = ({'‹':'back','›':'next','☰':'settings'})[title];
   const hasIcon = iconFrame && s.textures.exists('review-ui');
-  const hasSkin = !hasIcon && s.art !== false && s.textures.exists('review-buttons') && s.game?.renderer?.type === Phaser.WEBGL;
+  const hasSkin = !hasIcon && s.art !== false && s.textures.exists('review-buttons');
   const frame = enabled ? (primary ? 'primary' : 'secondary') : 'disabled';
   const bg = hasIcon
     ? s.add.image(0,0,'review-ui',iconFrame).setDisplaySize(Math.min(w,h),Math.min(w,h))
     : hasSkin
-      ? s.add.nineslice(0,0,'review-buttons',frame,w,h,64,64,28,28)
+      ? (s.game?.renderer?.type === Phaser.WEBGL
+        ? s.add.nineslice(0,0,'review-buttons',frame,w,h,64,64,28,28)
+        : s.add.image(0,0,'review-buttons',frame).setDisplaySize(w,h))
       : panel(s, 0, 0, w, h, !enabled ? 0xdbe1d7 : primary ? C.jade : C.ivory);
   const label = text(s, 0, 0, title, size, !enabled ? '#78867b' : primary ? '#fff4d6' : C.ink);
   if(hasIcon) label.setVisible(false);
