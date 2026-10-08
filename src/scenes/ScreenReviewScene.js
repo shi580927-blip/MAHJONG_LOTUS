@@ -1,5 +1,5 @@
-import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-10';
-import { geometry, deal, free, pairs, boardPlacement, LEVELS } from '../data/reviewBoard.js?v=20261008-10';
+import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-11';
+import { geometry, deal, free, pairs, boardPlacement, LEVELS } from '../data/reviewBoard.js?v=20261008-11';
 const KEY = 'lotus.screen-review.v1';
 const CHAPTERS = ['Сад Безмятежности', 'Сад Цветущей Сакуры', 'Храм Лотоса'];
 const LOCATIONS = [
@@ -116,6 +116,8 @@ export class ScreenReviewScene extends Phaser.Scene {
     const loading = document.getElementById('loading-screen');
     if (loading) loading.hidden = true;
     this.tweens.killAll();
+    this.resolvingPair = false;
+    this.input.enabled = true;
     // DisplayList.removeAll removes rendering entries, not interactive objects.
     // Destroy the previous view so invisible map nodes/buttons cannot receive taps.
     for (const child of [...this.children.list]) child.destroy();
@@ -494,6 +496,7 @@ export class ScreenReviewScene extends Phaser.Scene {
       if(this.textures.exists('review-tiles')) {
         symbol=this.add.image(x,y,'review-tiles',`tile_${String(tile.symbol).padStart(2,'0')}`).setDisplaySize(tw,th);
         if(!isFree) symbol.setTint(0xb5c1b6);
+        if(selected) symbol.setDisplaySize(tw*1.045,th*1.045);
         if(selected||hinted) g.lineStyle(5,0xf6ca65,1).strokeRoundedRect(x-tw/2-2,y-th/2-2,tw+4,th+4,12);
       } else {
         g.fillStyle(isFree?0xfff9eb:0xd3d7c5).fillRoundedRect(x-tw/2,y-th/2,tw,th,12);
@@ -517,21 +520,35 @@ export class ScreenReviewScene extends Phaser.Scene {
     if(!left) this.victory();
   }
   selectTile(tile) {
-    if(this.modal || tile.removed || !free(tile,this.tiles))return;
+    if(this.resolvingPair || this.modal || tile.removed || !free(tile,this.tiles))return;
     this.tone();
     if(this.selected===tile.id){this.selected=null;this.draw();return;}
     const previous=this.tiles.find(t=>t.id===this.selected);
     if(previous && previous.symbol===tile.symbol && free(previous,this.tiles)) {
-      previous.removed=tile.removed=true;this.selected=null;this.hinted=[];this.notice='Пара найдена';this.draw();
-      if(this.tiles.some(t=>!t.removed)&&!pairs(this.tiles).length)this.noMoves();
+      this.removePair([previous,tile],'Пара найдена');
     } else {this.selected=tile.id;this.notice=previous?'Выберите плитку с таким же символом':null;this.draw();}
   }
+  removePair(pair, notice) {
+    if(this.resolvingPair || this.modal || pair.length!==2 || pair.some(tile=>tile.removed)) return;
+    // Commit the move before its visual effect; resizing must never resurrect tiles.
+    pair.forEach(tile=>{tile.removed=true;});
+    this.selected=null;this.hinted=[];this.notice=notice;
+    const finish=()=>{
+      this.resolvingPair=false;this.input.enabled=true;this.draw();
+      if(this.tiles.some(tile=>!tile.removed)&&!pairs(this.tiles).length)this.noMoves();
+    };
+    const targets=this.boardObjects?.filter(item=>pair.includes(item.tile)).flatMap(item=>[item.symbol,item.g]) || [];
+    if(!this.state.motion || !targets.length) {finish();return;}
+    this.resolvingPair=true;this.input.enabled=false;
+    this.tweens.add({targets,alpha:0,duration:220,ease:'Sine.easeIn',onComplete:finish});
+  }
   boost(index) {
+    if(this.resolvingPair || this.modal) return;
     const pair=pairs(this.tiles)[0];
     if(index===1) {deal(this.tiles);this.selected=null;this.hinted=[];this.notice='Плитки перемешаны. Есть решение.';this.draw();return;}
     if(!pair){this.noMoves();return;}
     if(index===0){this.hinted=pair.map(t=>t.id);this.notice='Выделена доступная пара';this.draw();}
-    if(index===2){pair.forEach(t=>{t.removed=true;});this.selected=null;this.hinted=[];this.notice='Благословение убрало одну пару';this.draw();if(this.tiles.some(t=>!t.removed)&&!pairs(this.tiles).length)this.noMoves();}
+    if(index===2) this.removePair(pair,'Благословение убрало одну пару');
   }
   popup(title,description,actions) {
     this.modal=true;

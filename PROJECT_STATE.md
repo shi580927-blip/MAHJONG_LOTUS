@@ -311,3 +311,5 @@ Art-first подход прекращён. Игровая композиция �
 Canvas verification: use atlas images for button skins when WebGL nine-slice is unavailable; published revision 20261008-8.
 
 2026-10-08 loading optimization: HTML loading indicator appears before Phaser. Initial preload retains UI/tile atlases and only current orientation menu background; map/location/orientation backgrounds load on demand. Input temporarily blocked while downloading, duplicate requests suppressed, failed backgrounds fall back without retry loop. Cache revision 20261008-10.
+
+2026-10-08 gameplay feedback: selected tile enlarged 4.5%; matched and blessing pairs fade over 220 ms when motion enabled. Pair removal commits before tween; input blocked during effect; redraw/resize kills tween and restores input without restoring removed tiles. Reduced motion removes immediately. Regression coverage repeated actions, modal, input restore. Revision 20261008-11.
