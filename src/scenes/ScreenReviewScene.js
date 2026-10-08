@@ -1,5 +1,5 @@
-import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-9';
-import { geometry, deal, free, pairs, boardPlacement, LEVELS } from '../data/reviewBoard.js?v=20261008-9';
+import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-10';
+import { geometry, deal, free, pairs, boardPlacement, LEVELS } from '../data/reviewBoard.js?v=20261008-10';
 const KEY = 'lotus.screen-review.v1';
 const CHAPTERS = ['Сад Безмятежности', 'Сад Цветущей Сакуры', 'Храм Лотоса'];
 const LOCATIONS = [
@@ -21,14 +21,11 @@ export class ScreenReviewScene extends Phaser.Scene {
     this.load.atlas('review-tiles', 'assets/runtime/atlases/review_tiles/review_tiles.webp', 'assets/runtime/atlases/review_tiles/review_tiles.json');
     this.load.atlas('review-buttons', 'assets/runtime/atlases/review_buttons/review_buttons.webp', 'assets/runtime/atlases/review_buttons/review_buttons.json');
     this.load.atlas('review-ui', 'assets/runtime/atlases/review_ui/review_ui.webp', 'assets/runtime/atlases/review_ui/review_ui.json');
-    this.load.image('section01-landscape', 'assets/runtime/backgrounds/sections/01/map_landscape.webp');
-    this.load.image('section01-portrait', 'assets/runtime/backgrounds/sections/01/map_portrait.webp');
-    for (const ratio of ['landscape','portrait']) this.load.image(`section02-${ratio}`, `assets/runtime/backgrounds/sections/02/map_${ratio}.webp`);
-    if (this.art) {
-      for (const mode of ['map', 'gameplay']) for (const ratio of ['16x9', '9x16']) {
-        this.load.image(`${mode}-${ratio}`, `assets/runtime/backgrounds/ch1/${mode}/ch1_${mode === 'map' ? 'map' : 'level'}_bg_${ratio}.webp`);
-      }
-    }
+    const portrait = this.scale.height > this.scale.width;
+    if (this.art) this.load.image(`gameplay-${portrait?'9x16':'16x9'}`, `assets/runtime/backgrounds/ch1/gameplay/ch1_level_bg_${portrait?'9x16':'16x9'}.webp`);
+    this.load.on('progress', value => this.loadingStatus('Загружаем сад', value));
+    this.load.on('loaderror', file => this.loadingStatus('Не удалось загрузить файл. Обновите страницу.', 0));
+
   }
   create() {
     this.state = { completed: [], sound: false, motion: true };
@@ -71,7 +68,53 @@ export class ScreenReviewScene extends Phaser.Scene {
     } catch { /* Audio optional. */ }
   }
   go(mode) { if (this.preview && mode !== 'game') { this.preview=false; this.tiles=null; this.level=this.current; } if (mode === 'map' && this.mode !== 'map') this.section = Math.floor((this.current-1)/10); this.mode = mode; this.modal = null; this.selected = null; this.draw(); }
+  loadingStatus(message, progress) {
+    const overlay = document.getElementById('loading-screen');
+    if (!overlay) return;
+    overlay.hidden = false;
+    document.getElementById('loading-message').textContent = message;
+    document.getElementById('loading-progress').value = progress;
+  }
+  ensureBackground() {
+    if (!this.art) return true;
+    const ratio = this.scale.height > this.scale.width ? 'portrait' : 'landscape';
+    const aspect = ratio === 'portrait' ? '9x16' : '16x9';
+    let key, path;
+    if (this.mode === 'map' && !this.editMode) {
+      if (this.section > 1) return true;
+      const section = String(this.section + 1).padStart(2,'0');
+      key = `section${section}-${ratio}`;
+      path = `assets/runtime/backgrounds/sections/${section}/map_${ratio}.webp`;
+    } else if (this.mode === 'game' && this.level >= 11 && this.level <= 20) {
+      key = `section02-${ratio}`;
+      path = `assets/runtime/backgrounds/sections/02/map_${ratio}.webp`;
+    } else {
+      const mode = this.mode === 'map' ? 'map' : 'gameplay';
+      key = `${mode}-${aspect}`;
+      path = `assets/runtime/backgrounds/ch1/${mode}/ch1_${mode==='map'?'map':'level'}_bg_${aspect}.webp`;
+    }
+    if (this.textures.exists(key)) return true;
+    if (this.backgroundLoading) return false;
+    if (this.failedBackgrounds?.has(key)) return true;
+    this.backgroundLoading = true;
+    this.input.enabled = false;
+    this.loadingStatus('Открываем локацию',0);
+    const failed = file => { if(file.key === key) { this.failedBackgrounds ||= new Set(); this.failedBackgrounds.add(key); } };
+    this.load.on('loaderror',failed);
+    this.load.once('complete',() => {
+      this.load.off('loaderror',failed);
+      this.backgroundLoading = false;
+      this.input.enabled = true;
+      this.draw();
+    });
+    this.load.image(key,path);
+    this.load.start();
+    return false;
+  }
   draw() {
+    if (!this.ensureBackground()) return;
+    const loading = document.getElementById('loading-screen');
+    if (loading) loading.hidden = true;
     this.tweens.killAll();
     // DisplayList.removeAll removes rendering entries, not interactive objects.
     // Destroy the previous view so invisible map nodes/buttons cannot receive taps.

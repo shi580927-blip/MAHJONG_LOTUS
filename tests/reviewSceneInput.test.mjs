@@ -15,6 +15,8 @@ const before = JSON.stringify(scene.tiles);
 scene.tweens = { killAll() {} };
 scene.input = { removeAllListeners() {} };
 scene.scale = { width:1920,height:1080 };
+globalThis.document = {getElementById:()=>null};
+scene.ensureBackground = () => true;
 scene.mode = 'game'; scene.background = () => {};
 scene.gameplay = () => zone(() => {});
 scene.newBoard = () => { restarts++; };

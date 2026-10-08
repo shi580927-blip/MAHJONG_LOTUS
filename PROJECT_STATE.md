@@ -309,3 +309,5 @@ Art-first подход прекращён. Игровая композиция �
 - Cache 20261008-7. Tests cover label restoration, modal shielding and disabled action rejection; all existing board/progress/input regressions still pass.
 
 Canvas verification: use atlas images for button skins when WebGL nine-slice is unavailable; published revision 20261008-8.
+
+2026-10-08 loading optimization: HTML loading indicator appears before Phaser. Initial preload retains UI/tile atlases and only current orientation menu background; map/location/orientation backgrounds load on demand. Input temporarily blocked while downloading, duplicate requests suppressed, failed backgrounds fall back without retry loop. Cache revision 20261008-10.
