@@ -14,14 +14,14 @@ export const FIRST_LOCATION = [
 export const SECOND_LOCATION = [
   { name: 'Вход в рощу', layers: [['######', '######', '######', '######'], ['......', '.####.', '.####.']] },
   { name: 'Бамбуковые стебли', layers: [['##..##', '##..##', '##..##', '##..##', '##..##'], ['##..##', '##..##', '......', '##..##', '##..##']] },
-  { name: 'Лесная тропа', layers: [['####..', '.####.', '..####', '.####.', '####..'], ['.##...', '..##..', '...##.', '..##..', '.##...']] },
+  { name: 'Лесная тропа', layers: [['####..', '######', '..####', '.####.', '####..'], ['......', '.##...', '..##..', '.##...']], offsets: [[0,0],[.5,-.5]] },
   { name: 'Нефритовые ворота', layers: [['######', '######', '##..##', '##..##', '######'], ['.####.', '.####.', '......', '......', '.####.']] },
   { name: 'Солнечный просвет', layers: [['.####.', '######', '######', '######', '.####.'], ['.####.', '......', '.####.', '......', '.####.']] },
   { name: 'Перекрёсток', layers: [['..##..', '######', '######', '######', '..##..'], ['......', '.####.', '.####.', '.####.'], ['......', '......', '..##..']] },
-  { name: 'Мост над ручьём', layers: [['######', '######', '######', '######', '######'], ['##..##', '######', '##..##', '######', '##..##']] },
-  { name: 'Зелёные террасы', layers: [['######', '######', '######', '######', '######'], ['......', '######', '.####.', '######'], ['......', '......', '..##..']] },
-  { name: 'Бамбуковая пагода', layers: [['######', '######', '######', '######', '######'], ['.####.', '.####.', '.####.', '.####.', '.####.'], ['......', '..##..', '..##..', '..##..']] },
-  { name: 'Врата Безмятежности', layers: [['######', '######', '######', '######', '######'], ['.####.', '.####.', '.####.', '.####.', '.####.'], ['......', '.####.', '......', '.####.'], ['......', '......', '..##..']] }
+  { name: 'Мост над ручьём', layers: [['######', '######', '##..##', '######', '####..'], ['......', '####..', '......', '..####']], offsets: [[0,0],[.5,-.5]] },
+  { name: 'Зелёные террасы', layers: [['######', '######', '######', '####..', '####..'], ['......', '.####.', '..####', '..##..'], ['......', '......', '..##..']], offsets: [[0,0],[-.5,.5],[0,0]] },
+  { name: 'Бамбуковая пагода', layers: [['######', '######', '######', '######', '####..'], ['......', '.####.', '.####.', '.####.'], ['......', '..##..', '..##..']], offsets: [[0,0],[.5,-.5],[0,0]] },
+  { name: 'Врата Безмятежности', layers: [['.#####', '######', '######', '#####.', '.####.'], ['......', '.####.', '.####.', '.####.'], ['......', '..##..', '..##..'], ['......', '......', '..##..']], offsets: [[0,0],[.5,-.5],[0,0],[-.5,-.5]] }
 ];
 export const LEVELS = [...FIRST_LOCATION, ...SECOND_LOCATION];
 export function geometry(level) {
@@ -29,7 +29,8 @@ export function geometry(level) {
   if (!template) return testGeometry();
   const cells = [];
   template.layers.forEach((rows, z) => rows.forEach((row, y) => [...row].forEach((cell, x) => {
-    if (cell === '#') cells.push({ id: cells.length, x, y, z });
+    const [offsetX, offsetY] = template.offsets?.[z] || [0,0];
+    if (cell === '#') cells.push({ id: cells.length, x: x+offsetX, y: y+offsetY, z });
   })));
   return cells;
 }
@@ -71,6 +72,7 @@ export function pairs(tiles) {
 // choices leave a geometric trap, shuffle safely repacks the remaining tiles.
 export function deal(cells, random = Math.random) {
   const alive = cells.filter(t => !t.removed);
+  if (!alive.length) return [];
   let solution;
   for (let attempt = 0; attempt < 64 && !solution; attempt++) {
     const work = alive.map(t => ({ ...t, removed: false }));
@@ -79,8 +81,10 @@ export function deal(cells, random = Math.random) {
       const open = work.filter(t => free(t, work));
       if (open.length < 2) break;
       open.sort((a, b) => b.z - a.z);
-      const a = open.shift();
-      const b = open[attempt === 0 ? 0 : Math.floor(random() * open.length)];
+      // Random legal pairs can span rows and layers. The last attempt is a
+      // deterministic top-first peel for geometries with even layer counts.
+      const a = open.splice(attempt === 63 ? 0 : Math.floor(random()*open.length), 1)[0];
+      const b = open[attempt === 63 ? 0 : Math.floor(random() * open.length)];
       a.removed = b.removed = true;
       sequence.push([a.id, b.id]);
     }
@@ -90,9 +94,34 @@ export function deal(cells, random = Math.random) {
     alive.forEach((tile, i) => Object.assign(tile, { x: i % 6, y: Math.floor(i / 6), z: 0 }));
     return deal(cells, random);
   }
-  for (const ids of solution) {
-    const symbol = Math.floor(random() * 12);
-    ids.forEach(id => { cells.find(t => t.id === id).symbol = symbol; });
+  const shuffled = values => {
+    const result = [...values];
+    for (let i=result.length-1; i>0; i--) {
+      const j=Math.floor(random()*(i+1));
+      [result[i],result[j]]=[result[j],result[i]];
+    }
+    return result;
+  };
+  // Every symbol count is even, but counts need not be equal. Use the full
+  // illustrated palette when possible and cap repetitions of any one face.
+  const palette=shuffled(Array.from({length:12},(_,i)=>i)).slice(0,Math.min(12,solution.length));
+  const symbols=[...palette], cap=Math.ceil(solution.length/palette.length)+1;
+  while(symbols.length<solution.length) {
+    const candidates=palette.filter(symbol=>symbols.filter(s=>s===symbol).length<cap);
+    symbols.push(candidates[Math.floor(random()*candidates.length)]);
   }
+  const byId=new Map(cells.map(t=>[t.id,t]));
+  const apply=faces=>solution.forEach((ids,i)=>ids.forEach(id=>{byId.get(id).symbol=faces[i];}));
+  // Keep a solvable opening without filling it with redundant matches.
+  // This is an opening heuristic, not a claim of measured difficulty.
+  const target=Math.max(2,Math.min(6,Math.floor(alive.length/10)));
+  let best, bestScore=Infinity;
+  for(let attempt=0;attempt<12;attempt++) {
+    const faces=shuffled(symbols); apply(faces);
+    const score=Math.abs(pairs(cells).length-target);
+    if(score<bestScore) {best=faces;bestScore=score;}
+    if(!score) break;
+  }
+  apply(best);
   return solution;
 }
