@@ -320,3 +320,5 @@ Canvas verification: use atlas images for button skins when WebGL nine-slice is 
 - Transitions 10→11 and 20→21 synchronize section and board. Level 60 offers map and replay. Preview never saves progress; completion remains idempotent on redraw/replay.
 - No economy changes. Existing input/pair/background safeguards retained.
 - Cache chain 20261008-12. All 9 Node test files pass, including added location/chapter/final/replay checks. Published browser verification pending.
+
+- Publication verified: Pages workflow 37831812483 succeeded for 9a9053e. Browser loaded main.js?v=20261008-12; victory reviewed in forced portrait and landscape; landscape CTA opened level 2 with its distinct layout. Physical mobile-device testing remains pending. Cached HTML from URLs opened before deployment can temporarily retain revision 11; freshly opened orientation-specific revision-12 links were verified.
