@@ -1,5 +1,5 @@
-import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-11';
-import { geometry, deal, free, pairs, boardPlacement, LEVELS } from '../data/reviewBoard.js?v=20261008-11';
+import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-12';
+import { geometry, deal, free, pairs, boardPlacement, LEVELS } from '../data/reviewBoard.js?v=20261008-12';
 const KEY = 'lotus.screen-review.v1';
 const CHAPTERS = ['Сад Безмятежности', 'Сад Цветущей Сакуры', 'Храм Лотоса'];
 const LOCATIONS = [
@@ -573,12 +573,30 @@ export class ScreenReviewScene extends Phaser.Scene {
     ]);
   }
   victory() {
-    if(!this.preview && !this.state.completed.includes(this.level)){this.state.completed.push(this.level);this.save();}
+    const replay = this.state.completed.includes(this.level);
+    if(!this.preview && !replay){this.state.completed.push(this.level);this.save();}
     this.current=Math.min(60,Math.max(0,...this.state.completed)+1);
-    const milestone=this.level%5===0;
-    this.popup('Путь становится светлее',milestone?'Вы достигли нового рубежа Пути':'Уровень '+this.level+' завершён',[
-      [this.level===(this.preview?LEVELS.length:60)?'На карту':'Следующий уровень',()=>{if(this.level===(this.preview?LEVELS.length:60)){this.go('map');return;}this.level++;this.newBoard();this.draw();}],
-      ['Вернуться на Путь',()=>{this.offset=undefined;this.go('map');}]
+    const last=this.level===(this.preview?LEVELS.length:60);
+    const sectionEnd=this.level%10===0;
+    const nextLocation=LOCATIONS[Math.floor(this.level/10)]?.name;
+    const title=last ? (this.preview?'Просмотр завершён':'Путь Лотоса пройден')
+      : sectionEnd ? 'Новая локация впереди' : 'Уровень завершён';
+    const detail=this.preview ? 'Тестовый просмотр · прогресс не сохраняется'
+      : last ? 'Все 60 уровней завершены. Спасибо за путешествие!'
+      : sectionEnd ? `Далее — ${nextLocation}`
+      : this.level%5===0 ? 'Вы достигли нового рубежа Пути' : 'Ещё один шаг по Пути Лотоса';
+    const progress=this.preview ? `Уровень ${this.level}`
+      : `Уровень ${this.level} · Пройдено ${new Set(this.state.completed).size} из 60`;
+    this.popup(title,`${progress}\n${detail}`,[
+      [last?'На карту':sectionEnd?'В следующую локацию':`Далее · Уровень ${this.level+1}`,()=>{
+        if(last){this.go('map');return;}
+        this.level++;this.section=Math.floor((this.level-1)/10);
+        this.newBoard();this.draw();
+      }],
+      [last?'Сыграть ещё раз':'Вернуться на Путь',()=>{
+        if(last){this.newBoard();this.draw();return;}
+        this.offset=undefined;this.go('map');
+      }]
     ]);
     if(this.state.motion){const ring=this.add.circle(this.w/2,this.h/2-170,80).setStrokeStyle(5,C.gold,.8).setDepth(520);this.tweens.add({targets:ring,scale:4,alpha:0,duration:1300,onComplete:()=>ring.destroy()});}
   }

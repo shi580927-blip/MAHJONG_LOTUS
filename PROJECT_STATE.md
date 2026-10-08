@@ -313,3 +313,10 @@ Canvas verification: use atlas images for button skins when WebGL nine-slice is 
 2026-10-08 loading optimization: HTML loading indicator appears before Phaser. Initial preload retains UI/tile atlases and only current orientation menu background; map/location/orientation backgrounds load on demand. Input temporarily blocked while downloading, duplicate requests suppressed, failed backgrounds fall back without retry loop. Cache revision 20261008-10.
 
 2026-10-08 gameplay feedback: selected tile enlarged 4.5%; matched and blessing pairs fade over 220 ms when motion enabled. Pair removal commits before tween; input blocked during effect; redraw/resize kills tween and restores input without restoring removed tiles. Reduced motion removes immediately. Regression coverage repeated actions, modal, input restore. Revision 20261008-11.
+
+
+## 2026-10-08 — Victory and location transitions
+- TEST: victory shows completed level and unique completion count. Section endings name the next location; next-level CTA includes its number.
+- Transitions 10→11 and 20→21 synchronize section and board. Level 60 offers map and replay. Preview never saves progress; completion remains idempotent on redraw/replay.
+- No economy changes. Existing input/pair/background safeguards retained.
+- Cache chain 20261008-12. All 9 Node test files pass, including added location/chapter/final/replay checks. Published browser verification pending.
