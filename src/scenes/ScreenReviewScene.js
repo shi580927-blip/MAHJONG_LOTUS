@@ -1,5 +1,5 @@
-import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-6';
-import { geometry, deal, free, pairs, boardPlacement, LEVELS } from '../data/reviewBoard.js?v=20261008-6';
+import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-7';
+import { geometry, deal, free, pairs, boardPlacement, LEVELS } from '../data/reviewBoard.js?v=20261008-7';
 const KEY = 'lotus.screen-review.v1';
 const CHAPTERS = ['Сад Безмятежности', 'Сад Цветущей Сакуры', 'Храм Лотоса'];
 const LOCATIONS = [
@@ -19,6 +19,7 @@ export class ScreenReviewScene extends Phaser.Scene {
     this.art = params.get('art') !== '0' && params.get('debug') !== '1';
     this.load.atlas('review-map', 'assets/runtime/atlases/map_common/map_common.webp', 'assets/runtime/atlases/map_common/map_common.json');
     this.load.atlas('review-tiles', 'assets/runtime/atlases/review_tiles/review_tiles.webp', 'assets/runtime/atlases/review_tiles/review_tiles.json');
+    this.load.atlas('review-buttons', 'assets/runtime/atlases/review_buttons/review_buttons.webp', 'assets/runtime/atlases/review_buttons/review_buttons.json');
     this.load.atlas('review-ui', 'assets/runtime/atlases/review_ui/review_ui.webp', 'assets/runtime/atlases/review_ui/review_ui.json');
     this.load.image('section01-landscape', 'assets/runtime/backgrounds/sections/01/map_landscape.webp');
     this.load.image('section01-portrait', 'assets/runtime/backgrounds/sections/01/map_portrait.webp');
@@ -185,7 +186,7 @@ export class ScreenReviewScene extends Phaser.Scene {
     const available=first<=this.current;
     button(this,this.w/2,by+30,this.p?590:620,78,available?`Играть · ${target}`:'Локация пока закрыта',()=>{
       if(!available)return;this.level=target;this.newBoard();this.go('game');
-    },available,28);
+    },available,28,available);
     if(this.section!==Math.floor((this.current-1)/10)) button(this,this.w/2,this.p?1625:875,380,68,'К текущему участку',()=>{this.section=Math.floor((this.current-1)/10);this.draw();},false,24);
   }
   hud(title, subtitle = '') {

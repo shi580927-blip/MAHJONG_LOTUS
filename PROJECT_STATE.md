@@ -299,3 +299,11 @@ Art-first подход прекращён. Игровая композиция �
 - Current bamboo tile counts: 32, 36, 28, 38, 38, 36, 34, 38, 44, 44. Existing layouts/first location/environment assets and progress remain intact.
 - Validation: 2,000 complete legal deals retain starting geometry, both-orientation bounds, regression coverage for old input regions, 200 non-mirror randomized pairings, bounded even/unequal face counts, upper-layer support and half-cell covering, and partial-board reshuffles retaining removed tiles. Seeded sample level 20: average 4.025 initial matching pairs across 200 deals; this is not a human playtest.
 - Cache version 20261008-6.
+
+## 2026-10-08 — Illustrated button skins
+- User requested further work and drawing the buttons. New three-frame alpha atlas: primary emerald jade, secondary ivory, inactive grey-green; gold rims and lotus end ornaments, no baked-in text/icons.
+- Runtime paths: assets/runtime/atlases/review_buttons/review_buttons.webp and review_buttons.json. Preparation: scripts/prepare_button_art.py SOURCE_PNG, packs three top-to-bottom alpha components into 560×100 frames with padding.
+- Generation: built-in image tool, transparent-background request. Prompt: exactly three stacked isolated blank horizontal rounded rectangle skins; premium oriental fantasy zen; jade/gold primary, ivory/gold secondary, matte grey-green inactive; delicate lotus/leaf endcaps, large empty center, straight frontal view, no text/numbers/icons/background.
+- Buttons use nine-slice on WebGL, preserving corners while fitting menu, map, boosters and modal action sizes. Canvas and schematic view retain the programmatic fallback. Existing round navigation/settings/booster icons remain separate assets; labels remain native text and shrink only if too wide.
+- Added hover tint, press tint and a small label shift that restores on release/out; original modal input guard retained. Locked-location CTA now uses inactive skin and has no interactive hit zone.
+- Cache 20261008-7. Tests cover label restoration, modal shielding and disabled action rejection; all existing board/progress/input regressions still pass.

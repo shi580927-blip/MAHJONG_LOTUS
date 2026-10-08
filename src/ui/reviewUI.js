@@ -10,18 +10,40 @@ export function panel(s, x, y, w, h, fill = C.ivory, alpha = 1, radius = 26) {
   g.lineStyle(2, C.gold, .85).strokeRoundedRect(x - w/2, y - h/2, w, h, radius);
   return g;
 }
-export function button(s, x, y, w, h, title, action, primary = false, size = 28) {
+export function button(s, x, y, w, h, title, action, primary = false, size = 28, enabled = true) {
   const iconFrame = ({'‹':'back','›':'next','☰':'settings'})[title];
   const hasIcon = iconFrame && s.textures.exists('review-ui');
-  const bg = hasIcon ? s.add.image(0,0,'review-ui',iconFrame).setDisplaySize(Math.min(w,h),Math.min(w,h)) : panel(s, 0, 0, w, h, primary ? C.jade : C.ivory);
-  const label = text(s, 0, 0, title, size, primary ? '#fff4d6' : C.ink);
+  const hasSkin = !hasIcon && s.art !== false && s.textures.exists('review-buttons') && s.game?.renderer?.type === Phaser.WEBGL;
+  const frame = enabled ? (primary ? 'primary' : 'secondary') : 'disabled';
+  const bg = hasIcon
+    ? s.add.image(0,0,'review-ui',iconFrame).setDisplaySize(Math.min(w,h),Math.min(w,h))
+    : hasSkin
+      ? s.add.nineslice(0,0,'review-buttons',frame,w,h,64,64,28,28)
+      : panel(s, 0, 0, w, h, !enabled ? 0xdbe1d7 : primary ? C.jade : C.ivory);
+  const label = text(s, 0, 0, title, size, !enabled ? '#78867b' : primary ? '#fff4d6' : C.ink);
   if(hasIcon) label.setVisible(false);
-  const hit = s.add.zone(0, 0, w, h).setInteractive({ useHandCursor: true });
+  else if(label.width>w-72) label.setFontSize(size*(w-72)/label.width);
+  const hit = s.add.zone(0, 0, w, h);
+  if(enabled) hit.setInteractive({ useHandCursor: true });
   const container = s.add.container(x, y, [bg, label, hit]);
-  hit.on('pointerover', () => { bg.setAlpha(.84); });
-  hit.on('pointerout', () => { bg.setAlpha(1); });
-  hit.on('pointerup', () => { if (!s.modal || container.getData('modal')) { s.tone?.(); action(); } });
-  container.setData('label', label);
+  container.setData('enabled',enabled);
+  container.setData('label',label);
+  container.setData('hit',hit);
+  let pressedY;
+  const allowed = () => container.getData('enabled') && (!s.modal || container.getData('modal'));
+  const restore = () => {
+    if(pressedY!==undefined) {label.setY(pressedY);pressedY=undefined;}
+    if(bg.clearTint) bg.clearTint(); else bg.setAlpha(1);
+  };
+  hit.on('pointerover', () => { if(allowed()) {if(bg.setTint) bg.setTint(0xfff4d6); else bg.setAlpha(.9);} });
+  hit.on('pointerdown', () => {
+    if(!allowed()) return;
+    if(pressedY===undefined) pressedY=label.y;
+    label.setY(pressedY+2);
+    if(bg.setTint) bg.setTint(0xc7d7c7); else bg.setAlpha(.75);
+  });
+  hit.on('pointerout',restore);
+  hit.on('pointerup', () => {restore(); if(allowed()) {s.tone?.();action();} });
   return container;
 }
 export function lotus(s, x, y, scale = 1, pink = false) {
