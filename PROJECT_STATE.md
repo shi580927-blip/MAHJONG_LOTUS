@@ -326,8 +326,9 @@ Canvas verification: use atlas images for button skins when WebGL nine-slice is 
 
 ## 2026-10-08 — Sakura Alley, authored levels 21–30
 - **TEST / на проверку**. Third location illustrated separately for landscape and portrait; pink sakura, ivory stone terraces, lanterns, pagodas, waterfalls and jade pond. Section map and gameplay 21–30 use the same lightweight surroundings. Old locations remain intact.
-- Added ten distinct layouts: Вход в аллею, Ветви сакуры, Лепестки на воде, Два павильона, Цветущая арка, Розовый веер, Тропинка над прудом, Лестница лепестков, Пагода в цвету, Сердце аллеи. Counts 36,36,34,32,40,38,38,44,44,48; up to four layers; asymmetric/half-cell-offset shapes included.
+- Added ten distinct layouts: Вход в аллею, Ветви сакуры, Лепестки на воде, Два павильона, Цветущая арка, Розовый веер, Тропинка над прудом, Лестница лепестков, Пагода в цвету, Сердце аллеи. Counts 36,36,34,42,54,44,38,44,44,48; up to four layers; asymmetric/half-cell-offset shapes included.
 - Preview extends to levels 1–30, never saves/unlocks; 20→21 loads Sakura Alley and level 30 preview ends on the map. Normal progression remains 60 levels; 31–60 still have temporary geometry, locations 4–6 await art.
 - No economy/reward/SDK changes. No new full-size tile variants; existing atlases reused. Backgrounds load on demand, approx. 0.6 MB per orientation.
 - Validation: all 10 Node test files pass, including 1,000 full legal deals for Sakura without initial repacking, both-frame board bounds/stable placement, raised-tile support, preview/chapter transitions and correct landscape/portrait loading. Human difficulty/physical mobile review remains pending.
-- Cache chain **20261008-13**. Asset/atlas specification and review routes updated. Deployment/browser QA pending.
+- Opening-density review: levels 24–26 adjusted to cover more exposed edges. Seeded sample (100 deals per level, seed 9281) now averages 4.94/7.32/4.27 opening matching pairs for those levels; across 21–30 means range 3.69–7.32. This is a generation diagnostic, not a validated human difficulty curve.
+- Cache chain **20261008-14**. Asset/atlas specification and review routes updated. Deployment/browser QA pending.

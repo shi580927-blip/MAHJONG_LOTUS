@@ -1,5 +1,5 @@
-import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-13';
-import { geometry, deal, free, pairs, boardPlacement, LEVELS } from '../data/reviewBoard.js?v=20261008-13';
+import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-14';
+import { geometry, deal, free, pairs, boardPlacement, LEVELS } from '../data/reviewBoard.js?v=20261008-14';
 const KEY = 'lotus.screen-review.v1';
 const CHAPTERS = ['Сад Безмятежности', 'Сад Цветущей Сакуры', 'Храм Лотоса'];
 const LOCATIONS = [

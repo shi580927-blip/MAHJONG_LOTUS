@@ -56,9 +56,9 @@ Visual browser verification is PENDING. Local Chromium installation failed (inco
 2026-10-05: added a TEST visual editor for manual Path-node placement. Routes: `?screen=map&edit=1&art=1&frame=landscape` and `&frame=portrait`. Node coordinates are stored separately per design frame in localStorage and can be downloaded as `lotus-path-layout.json`. The tool does not auto-promote edited coordinates to production data.
 
 
-## 2026-10-08 — Sakura Alley, revision 20261008-13
+## 2026-10-08 — Sakura Alley, revision 20261008-14
 - 30 authored TEST layouts; levels 31–60 retain temporary geometry. Section 3 uses separate sakura art in both orientations.
-- Play level 21: `?previewLevel=21&v=20261008-13`; portrait: add `&frame=portrait`.
-- View map without unlocks: `?screen=map&section=3&v=20261008-13`; portrait: add `&frame=portrait`.
+- Play level 21: `?previewLevel=21&v=20261008-14`; portrait: add `&frame=portrait`.
+- View map without unlocks: `?screen=map&section=3&v=20261008-14`; portrait: add `&frame=portrait`.
 - Preview now extends through level 30 and never records completion. Preview 20→21 enters Sakura Alley; preview 30 returns to normal map/progress.
 - All 10 Node test files pass: 1,000 Sakura legal solutions retaining geometry, both-frame bounds, raised-tile support, transitions, on-demand backgrounds and previous input/pair regressions. Art and difficulty still require player review.
