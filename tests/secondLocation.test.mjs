@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
-import { geometry, deal, free, boardPlacement, FIRST_LOCATION } from '../src/data/reviewBoard.js';
+import { geometry, deal, free, boardPlacement, SECOND_LOCATION } from '../src/data/reviewBoard.js';
 let seed=193;
 const random=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296);
 const footprints=new Set();
 const counts=[];
-for(let level=1;level<=10;level++) {
+for(let level=11;level<=20;level++) {
   const starting=geometry(level);
   const footprint=JSON.stringify(starting);
   footprints.add(footprint); counts.push(starting.length);
@@ -31,6 +31,6 @@ for(let level=1;level<=10;level++) {
   }
 }
 assert.equal(footprints.size,10);
-assert.equal(FIRST_LOCATION.length,10);
+assert.equal(SECOND_LOCATION.length,10);
 assert.deepEqual(geometry(21),geometry());
-console.log('PASS: ten distinct layouts, 1,000 complete solutions, stable fit in both orientations; tile counts:',counts.join(', '));
+console.log('PASS: ten bamboo layouts, 1,000 complete solutions, stable fit in both orientations; tile counts:',counts.join(', '));

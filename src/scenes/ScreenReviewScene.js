@@ -1,5 +1,5 @@
-import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-4';
-import { geometry, deal, free, pairs, boardPlacement, FIRST_LOCATION } from '../data/reviewBoard.js?v=20261008-4';
+import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-5';
+import { geometry, deal, free, pairs, boardPlacement, LEVELS } from '../data/reviewBoard.js?v=20261008-5';
 const KEY = 'lotus.screen-review.v1';
 const CHAPTERS = ['Сад Безмятежности', 'Сад Цветущей Сакуры', 'Храм Лотоса'];
 const LOCATIONS = [
@@ -22,6 +22,7 @@ export class ScreenReviewScene extends Phaser.Scene {
     this.load.atlas('review-ui', 'assets/runtime/atlases/review_ui/review_ui.webp', 'assets/runtime/atlases/review_ui/review_ui.json');
     this.load.image('section01-landscape', 'assets/runtime/backgrounds/sections/01/map_landscape.webp');
     this.load.image('section01-portrait', 'assets/runtime/backgrounds/sections/01/map_portrait.webp');
+    for (const ratio of ['landscape','portrait']) this.load.image(`section02-${ratio}`, `assets/runtime/backgrounds/sections/02/map_${ratio}.webp`);
     if (this.art) {
       for (const mode of ['map', 'gameplay']) for (const ratio of ['16x9', '9x16']) {
         this.load.image(`${mode}-${ratio}`, `assets/runtime/backgrounds/ch1/${mode}/ch1_${mode === 'map' ? 'map' : 'level'}_bg_${ratio}.webp`);
@@ -39,11 +40,13 @@ export class ScreenReviewScene extends Phaser.Scene {
     this.section = Math.floor((this.current-1)/10);
     const params = new URLSearchParams(location.search);
     const preview = Number(params.get('previewLevel'));
-    this.preview = Number.isInteger(preview) && preview >= 1 && preview <= 10;
+    this.preview = Number.isInteger(preview) && preview >= 1 && preview <= LEVELS.length;
     if (this.preview) this.level = preview;
     this.guides = params.get('debug') === '1';
     this.editMode = params.get('edit') === '1';
     this.mode = this.preview ? 'game' : this.editMode ? 'map' : (['menu', 'map', 'game'].includes(params.get('screen')) ? params.get('screen') : 'menu');
+    const requestedSection = Number(params.get('section'));
+    if (this.mode === 'map' && Number.isInteger(requestedSection) && requestedSection >= 1 && requestedSection <= LOCATIONS.length) this.section = requestedSection-1;
     this.editorNotice = 'Перетаскивайте ноды. Путь перестраивается автоматически.';
     this.draw();
     this.resizeHandler = () => this.draw();
@@ -84,7 +87,8 @@ export class ScreenReviewScene extends Phaser.Scene {
     if (this.mode === 'map' && !this.editMode) { this.locationBackground(); return; }
     const g = this.add.graphics();
     g.fillStyle(0xeeeede, 1).fillRect(0, 0, this.w, this.h);
-    const key = `${this.mode === 'map' ? 'map' : 'gameplay'}-${this.p ? '9x16' : '16x9'}`;
+    const bambooGame = this.mode === 'game' && this.level >= 11 && this.level <= 20;
+    const key = bambooGame ? `section02-${this.p ? 'portrait' : 'landscape'}` : `${this.mode === 'map' ? 'map' : 'gameplay'}-${this.p ? '9x16' : '16x9'}`;
     if (this.art && this.textures.exists(key)) {
       this.add.image(this.w/2, this.h/2, key).setDisplaySize(this.w, this.h);
       this.add.rectangle(this.w/2, this.h/2, this.w, this.h, 0xf3efdf, .2);
@@ -97,8 +101,8 @@ export class ScreenReviewScene extends Phaser.Scene {
     }
   }
   locationBackground() {
-    const key = `section01-${this.p ? 'portrait' : 'landscape'}`;
-    if(this.art && this.section===0 && this.textures.exists(key)) {
+    const key = `section${String(this.section+1).padStart(2,'0')}-${this.p ? 'portrait' : 'landscape'}`;
+    if(this.art && this.section<=1 && this.textures.exists(key)) {
       this.add.image(this.w/2,this.h/2,key).setDisplaySize(this.w,this.h);
       return;
     }
@@ -132,16 +136,21 @@ export class ScreenReviewScene extends Phaser.Scene {
   sectionMap() {
     const first=this.section*10+1, last=first+9;
     this.level=first;
-    const polished=this.art && this.section===0;
+    const polished=this.art && this.section<=1;
     const points=Array.from({length:10},(_,i)=>this.p
       ? {x: [310,770,770,310,310,770,770,310,310,770][i], y:1450-Math.floor(i/2)*245}
       : {x:260+(i%5)*350,y:i<5?400:740});
     let order=this.p?points:points.slice(0,5).concat(points.slice(5).reverse());
-    if(polished) {
+    if(polished && this.section===0) {
       // Art has no labels: sequence is authoritative and supplied by code.
       order=this.p
         ? [[.277,.742],[.735,.742],[.728,.565],[.31,.565],[.32,.425],[.717,.425],[.719,.309],[.339,.309],[.355,.205],[.718,.185]].map(([x,y])=>({x:x*this.w,y:y*this.h}))
         : [[.20,.358],[.35,.358],[.50,.358],[.65,.358],[.81,.358],[.81,.665],[.65,.665],[.50,.665],[.35,.665],[.20,.665]].map(([x,y])=>({x:x*this.w,y:y*this.h}));
+    }
+    if(polished && this.section===1) {
+      order=this.p
+        ? [[.28,.67],[.72,.67],[.72,.51],[.28,.51],[.28,.40],[.72,.40],[.72,.29],[.28,.29],[.28,.20],[.72,.20]].map(([x,y])=>({x:x*this.w,y:y*this.h}))
+        : [[.14,.39],[.32,.39],[.50,.39],[.68,.39],[.86,.39],[.86,.63],[.68,.63],[.50,.63],[.32,.63],[.14,.63]].map(([x,y])=>({x:x*this.w,y:y*this.h}));
     }
     this.mapPoints=order;
     const g=this.add.graphics();
@@ -158,7 +167,7 @@ export class ScreenReviewScene extends Phaser.Scene {
       else this.add.circle(point.x,point.y,65,locked?0x82948b:C.jade);
       text(this,point.x,point.y+42,String(n),29,'#fff6d5');
       if(n===this.current) { panel(this,point.x,point.y-108,190,42,C.ivory,.96,14); text(this,point.x,point.y-108,'ВЫ ЗДЕСЬ',20,C.ink); }
-      if(i===9) { panel(this,point.x,point.y+115,220,42,C.ivory,.96,14); text(this,point.x,point.y+115,n%20===0?'Врата главы':'Новая локация',21,C.ink); }
+      if(i===9 && !(polished && this.section===1 && this.p)) { panel(this,point.x,point.y+115,220,42,C.ivory,.96,14); text(this,point.x,point.y+115,n%20===0?'Врата главы':'Новая локация',21,C.ink); }
       if(!locked) this.add.zone(point.x,point.y,170,170).setInteractive({useHandCursor:true}).on('pointerup',()=>{
         if(this.modal)return;this.level=n;this.newBoard();this.go('game');
       });
@@ -426,7 +435,7 @@ export class ScreenReviewScene extends Phaser.Scene {
     this.hud(this.preview ? 'Просмотр уровня' : 'Уровень',String(this.level));
     const bx=this.p?540:960, by=this.p?885:525, bw=this.p?900:1280, bh=this.p?1050:700;
     panel(this,bx,by,bw,bh,C.jade,this.art ? .92 : .98,36);
-    text(this,bx,by-bh/2+40,FIRST_LOCATION[this.level-1]?.name.toUpperCase() || 'СОБИРАЙТЕ ОДИНАКОВЫЕ СВОБОДНЫЕ ПАРЫ',this.p?20:19,'#bfd3c1');
+    text(this,bx,by-bh/2+40,LEVELS[this.level-1]?.name.toUpperCase() || 'СОБИРАЙТЕ ОДИНАКОВЫЕ СВОБОДНЫЕ ПАРЫ',this.p?20:19,'#bfd3c1');
     // Same board geometry in both orientations: mobile reflows nothing mid-game.
     const placement=boardPlacement(this.tiles,bw-100,bh-180,this.p?134:116);
     const {tw,th,dx,dy}=placement;
@@ -507,7 +516,7 @@ export class ScreenReviewScene extends Phaser.Scene {
     this.current=Math.min(60,Math.max(0,...this.state.completed)+1);
     const milestone=this.level%5===0;
     this.popup('Путь становится светлее',milestone?'Вы достигли нового рубежа Пути':'Уровень '+this.level+' завершён',[
-      [this.level===(this.preview?10:60)?'На карту':'Следующий уровень',()=>{if(this.level===(this.preview?10:60)){this.go('map');return;}this.level++;this.newBoard();this.draw();}],
+      [this.level===(this.preview?LEVELS.length:60)?'На карту':'Следующий уровень',()=>{if(this.level===(this.preview?LEVELS.length:60)){this.go('map');return;}this.level++;this.newBoard();this.draw();}],
       ['Вернуться на Путь',()=>{this.offset=undefined;this.go('map');}]
     ]);
     if(this.state.motion){const ring=this.add.circle(this.w/2,this.h/2-170,80).setStrokeStyle(5,C.gold,.8).setDepth(520);this.tweens.add({targets:ring,scale:4,alpha:0,duration:1300,onComplete:()=>ring.destroy()});}

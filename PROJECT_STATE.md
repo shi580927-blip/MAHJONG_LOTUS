@@ -284,3 +284,10 @@ Art-first подход прекращён. Игровая композиция �
 - Board size and centering derive from the complete starting geometry in both orientations. Removing pairs never shifts the remaining tiles. Existing destruction of old interactive objects remains intact.
 - Optional `previewLevel=1..10` opens a playable preview without unlocking levels or recording completion. Leaving preview restores normal progress; preview level 10 returns to the map.
 - Cache version: 20261008-4. Validation: ten distinct shapes, 1,000 complete legal removal sequences without initial shape repacking, bounds in portrait/landscape, stable placement after removal, existing full/partial shuffle and stale-input regression checks.
+
+## 2026-10-08 — Bamboo Grove, levels 11–20
+- The second location now has ten distinct authored review layouts (30–60 tiles, up to four layers), including Bamboo Stems, Forest Trail, Jade Gate, Terraces and Gates of Serenity. These remain review content; levels 21–60 still use the test layout.
+- New Bamboo Grove artwork in landscape and portrait, generated with the built-in image tool. Map paths and coded level nodes remain separate. Second-location gameplay uses the bamboo environment too.
+- Preview now covers authored levels 1–20 and never saves completion/unlocks. Optional screen=map&section=2 views the second location while respecting progression locks. Normal victory 10→11 enters the bamboo board/environment.
+- Cache version: 20261008-5. Tests cover 2,000 complete legal deals across 20 distinct shapes without initial repacking, stable board fit in both orientations, ghost-input regression, and preview/normal progression.
+- Art prompts: landscape — luminous premium oriental fantasy zen bamboo grove, ivory two-tier paths, gold lanterns, turquoise stream, no UI/text; portrait — same style, five zigzag terraces with blank space for separate icons, quiet top/bottom. Portrait refinement explicitly adds the fifth terrace. Runtime outputs: assets/runtime/backgrounds/sections/02/map_landscape.webp (1920×1080), map_portrait.webp (1080×1920).
