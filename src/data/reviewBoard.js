@@ -1,5 +1,36 @@
-// TEST layouts: screen review only, not the approved 60-level content pack.
-export function geometry() {
+// First-location review levels. Later locations still use the test layout.
+export const FIRST_LOCATION = [
+  { name: 'Первые шаги', layers: [['######', '######']] },
+  { name: 'Две тропинки', layers: [['##..##', '##..##', '##..##', '##..##']] },
+  { name: 'Берег пруда', layers: [['.####.', '######', '######', '.####.']] },
+  { name: 'Каменный мост', layers: [['##..##', '######', '######', '##..##'], ['......', '..##..', '..##..']] },
+  { name: 'Кувшинка', layers: [['..##..', '.####.', '######', '.####.', '..##..'], ['......', '......', '..##..']] },
+  { name: 'Отражение', layers: [['######', '######', '######', '######'], ['.####.', '......', '......', '.####.']] },
+  { name: 'Островки', layers: [['##..##', '##..##', '######', '##..##', '##..##'], ['......', '.#..#.', '.#..#.']] },
+  { name: 'Лепестки', layers: [['.####.', '######', '######', '######', '.####.'], ['......', '..##..', '..##..', '..##..']] },
+  { name: 'Тихая пагода', layers: [['######', '######', '######', '######', '######'], ['......', '.####.', '.####.'], ['......', '......', '..##..']] },
+  { name: 'Раскрытие лотоса', layers: [['.####.', '######', '######', '######', '.####.'], ['......', '.####.', '.####.', '.####.'], ['......', '......', '..##..']] }
+];
+export function geometry(level) {
+  const template = FIRST_LOCATION[level - 1];
+  if (!template) return testGeometry();
+  const cells = [];
+  template.layers.forEach((rows, z) => rows.forEach((row, y) => [...row].forEach((cell, x) => {
+    if (cell === '#') cells.push({ id: cells.length, x, y, z });
+  })));
+  return cells;
+}
+// Bounds use the whole starting board so removing edge pairs cannot move it.
+export function boardPlacement(cells, width, height, preferredWidth) {
+  const minX = Math.min(...cells.map(t => t.x)), maxX = Math.max(...cells.map(t => t.x));
+  const minY = Math.min(...cells.map(t => t.y)), maxY = Math.max(...cells.map(t => t.y));
+  const maxZ = Math.max(...cells.map(t => t.z));
+  const cols = maxX - minX + 1, rows = maxY - minY + 1;
+  const tw = Math.min(preferredWidth, (width - (cols - 1)*3 - maxZ*10)/cols, (height - (rows - 1)*4 - maxZ*13)/(rows*1.25));
+  const th = tw*1.25, dx = tw+3, dy = th+4;
+  return { tw, th, dx, dy, ox: -(minX+maxX)*dx/2 + maxZ*5, oy: -(minY+maxY)*dy/2 + maxZ*6.5 };
+}
+function testGeometry() {
   const cells = [];
   for (let y = 0; y < 4; y++) for (let x = 0; x < 6; x++) {
     if ((y === 0 || y === 3) && (x === 0 || x === 5)) continue;

@@ -1,5 +1,5 @@
-import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-3';
-import { geometry, deal, free, pairs } from '../data/reviewBoard.js?v=20261005-1';
+import { C, text, panel, button, lotus } from '../ui/reviewUI.js?v=20261008-4';
+import { geometry, deal, free, pairs, boardPlacement, FIRST_LOCATION } from '../data/reviewBoard.js?v=20261008-4';
 const KEY = 'lotus.screen-review.v1';
 const CHAPTERS = ['Сад Безмятежности', 'Сад Цветущей Сакуры', 'Храм Лотоса'];
 const LOCATIONS = [
@@ -38,9 +38,12 @@ export class ScreenReviewScene extends Phaser.Scene {
     this.level = this.current;
     this.section = Math.floor((this.current-1)/10);
     const params = new URLSearchParams(location.search);
+    const preview = Number(params.get('previewLevel'));
+    this.preview = Number.isInteger(preview) && preview >= 1 && preview <= 10;
+    if (this.preview) this.level = preview;
     this.guides = params.get('debug') === '1';
     this.editMode = params.get('edit') === '1';
-    this.mode = this.editMode ? 'map' : (['menu', 'map', 'game'].includes(params.get('screen')) ? params.get('screen') : 'menu');
+    this.mode = this.preview ? 'game' : this.editMode ? 'map' : (['menu', 'map', 'game'].includes(params.get('screen')) ? params.get('screen') : 'menu');
     this.editorNotice = 'Перетаскивайте ноды. Путь перестраивается автоматически.';
     this.draw();
     this.resizeHandler = () => this.draw();
@@ -63,7 +66,7 @@ export class ScreenReviewScene extends Phaser.Scene {
       oscillator.start(); oscillator.stop(this.audioContext.currentTime + .14);
     } catch { /* Audio optional. */ }
   }
-  go(mode) { if (mode === 'map' && this.mode !== 'map') this.section = Math.floor((this.current-1)/10); this.mode = mode; this.modal = null; this.selected = null; this.draw(); }
+  go(mode) { if (this.preview && mode !== 'game') { this.preview=false; this.tiles=null; this.level=this.current; } if (mode === 'map' && this.mode !== 'map') this.section = Math.floor((this.current-1)/10); this.mode = mode; this.modal = null; this.selected = null; this.draw(); }
   draw() {
     this.tweens.killAll();
     // DisplayList.removeAll removes rendering entries, not interactive objects.
@@ -418,15 +421,16 @@ export class ScreenReviewScene extends Phaser.Scene {
     if(!this.p) button(this,this.w-345,by,420,82,'К текущему уровню',()=>{this.offset=undefined;this.draw();},false,25);
     else button(this,540,1620,280,68,'К текущему',()=>{this.offset=undefined;this.draw();},false,24);
   }
-  newBoard() { this.tiles=geometry(); deal(this.tiles); this.selected=null; this.hinted=[]; this.notice=null; }
+  newBoard() { this.tiles=geometry(this.level); deal(this.tiles); this.selected=null; this.hinted=[]; this.notice=null; }
   gameplay() {
-    this.hud('Уровень',String(this.level));
+    this.hud(this.preview ? 'Просмотр уровня' : 'Уровень',String(this.level));
     const bx=this.p?540:960, by=this.p?885:525, bw=this.p?900:1280, bh=this.p?1050:700;
     panel(this,bx,by,bw,bh,C.jade,this.art ? .92 : .98,36);
-    text(this,bx,by-bh/2+40,'СОБИРАЙТЕ ОДИНАКОВЫЕ СВОБОДНЫЕ ПАРЫ',this.p?20:19,'#bfd3c1');
+    text(this,bx,by-bh/2+40,FIRST_LOCATION[this.level-1]?.name.toUpperCase() || 'СОБИРАЙТЕ ОДИНАКОВЫЕ СВОБОДНЫЕ ПАРЫ',this.p?20:19,'#bfd3c1');
     // Same board geometry in both orientations: mobile reflows nothing mid-game.
-    const tw=this.p?134:116, th=tw*1.25, dx=tw+3, dy=th+4;
-    const ox=bx-2.5*dx, oy=by-1.5*dy;
+    const placement=boardPlacement(this.tiles,bw-100,bh-180,this.p?134:116);
+    const {tw,th,dx,dy}=placement;
+    const ox=bx+placement.ox, oy=by+placement.oy;
     this.boardObjects=[];
     const live=this.tiles.filter(t=>!t.removed).sort((a,b)=>a.z-b.z||a.y-b.y||a.x-b.x);
     for(const tile of live) {
@@ -499,11 +503,11 @@ export class ScreenReviewScene extends Phaser.Scene {
     ]);
   }
   victory() {
-    if(!this.state.completed.includes(this.level)){this.state.completed.push(this.level);this.save();}
-    this.current=Math.min(60,Math.max(...this.state.completed)+1);
+    if(!this.preview && !this.state.completed.includes(this.level)){this.state.completed.push(this.level);this.save();}
+    this.current=Math.min(60,Math.max(0,...this.state.completed)+1);
     const milestone=this.level%5===0;
     this.popup('Путь становится светлее',milestone?'Вы достигли нового рубежа Пути':'Уровень '+this.level+' завершён',[
-      [this.level===60?'На карту':'Следующий уровень',()=>{if(this.level===60){this.go('map');return;}this.level++;this.newBoard();this.draw();}],
+      [this.level===(this.preview?10:60)?'На карту':'Следующий уровень',()=>{if(this.level===(this.preview?10:60)){this.go('map');return;}this.level++;this.newBoard();this.draw();}],
       ['Вернуться на Путь',()=>{this.offset=undefined;this.go('map');}]
     ]);
     if(this.state.motion){const ring=this.add.circle(this.w/2,this.h/2-170,80).setStrokeStyle(5,C.gold,.8).setDepth(520);this.tweens.add({targets:ring,scale:4,alpha:0,duration:1300,onComplete:()=>ring.destroy()});}

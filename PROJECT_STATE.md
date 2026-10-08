@@ -278,3 +278,9 @@ Art-first подход прекращён. Игровая композиция �
 - Причина: DisplayList.removeAll(true) убирал объекты из отображения, оставляя их интерактивными. draw теперь уничтожает старые объекты и их вложенные зоны нажатия.
 - Регрессия: удаление старого интерактивного узла, сохранение removed/symbol при redraw и отсутствие накопления зон.
 - Cache 20261008-3.
+
+## 2026-10-08 — First location playable layouts
+- Levels 1–10 now have ten distinct review layouts: 12–40 tiles, one to three layers, named forms from First Steps to Opening Lotus. Levels 11–60 retain the existing test layout; this is not the approved final 60-level content pack.
+- Board size and centering derive from the complete starting geometry in both orientations. Removing pairs never shifts the remaining tiles. Existing destruction of old interactive objects remains intact.
+- Optional `previewLevel=1..10` opens a playable preview without unlocking levels or recording completion. Leaving preview restores normal progress; preview level 10 returns to the map.
+- Cache version: 20261008-4. Validation: ten distinct shapes, 1,000 complete legal removal sequences without initial shape repacking, bounds in portrait/landscape, stable placement after removal, existing full/partial shuffle and stale-input regression checks.
